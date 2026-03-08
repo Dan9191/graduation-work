@@ -1,0 +1,1 @@
+http://localhost:8094/api/swagger-ui/index.html

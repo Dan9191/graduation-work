@@ -46,7 +46,18 @@ class SecurityConfig {
 
                     .requestMatchers(HttpMethod.POST,"/api/v1/rag/search")
                     .hasAnyAuthority("ROLE_graduation.admin", "ROLE_graduation.user")
-
+                    .requestMatchers(
+                        "/api/swagger-ui.html",
+                        "/api/swagger-ui/**",
+                        "/api/v3/api-docs",
+                        "/api/v3/api-docs/**",
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/v3/api-docs",
+                        "/v3/api-docs/**",
+                        "/api/webjars/**",
+                        "/webjars/**"
+                    ).permitAll()
                     .requestMatchers("/ws/**").permitAll()
                     .anyRequest().authenticated()
             }

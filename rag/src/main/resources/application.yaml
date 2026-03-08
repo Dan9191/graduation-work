@@ -34,3 +34,9 @@ app:
       llm-url: ${LLM_URL:https://gigachat.devices.sberbank.ru/api/v1/chat/completions}
       llm-model: ${LLM_MODEL:GigaChat-2-Max}
     min-similarity: ${MIN_SIMILARITY:0.50}
+
+springdoc:
+  api-docs:
+    path: /api/v3/api-docs
+  swagger-ui:
+    path: /api/swagger-ui.html

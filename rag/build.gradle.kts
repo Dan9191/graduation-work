@@ -38,6 +38,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
     implementation("com.vladsch.flexmark:flexmark-all:0.64.8")
     implementation("dev.langchain4j:langchain4j:0.31.0")
     implementation("org.apache.httpcomponents.client5:httpclient5:5.6")
