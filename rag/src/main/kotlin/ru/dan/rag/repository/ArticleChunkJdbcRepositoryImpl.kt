@@ -1,26 +1,24 @@
 package ru.dan.rag.repository
 
-import java.sql.ResultSet
-import java.util.*
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
 import ru.dan.rag.entity.ArticleChunk
 import ru.dan.rag.model.ChunkForProcessing
+import java.sql.ResultSet
+import java.util.*
 
 /**
  * Реализация методов для работы с чанками.
  */
 @Repository
-class ArticleChunkJdbcRepositoryImpl (
-    private val jdbcTemplate: JdbcTemplate
+class ArticleChunkJdbcRepositoryImpl(
+    private val jdbcTemplate: JdbcTemplate,
 ) : ArticleChunkJdbcRepository {
-
     /**
      * Пакетная вставка для чанк.
      */
     override fun batchInsert(elements: List<ArticleChunk>) {
-
         jdbcTemplate.batchUpdate(
             """
             INSERT INTO article_chunks (
@@ -35,7 +33,7 @@ class ArticleChunkJdbcRepositoryImpl (
             )
             """.trimIndent(),
             elements,
-            elements.size
+            elements.size,
         ) { ps, element ->
             ps.setObject(1, element.id)
             ps.setObject(2, element.articleId)
@@ -50,13 +48,14 @@ class ArticleChunkJdbcRepositoryImpl (
      * Поиск необработанных чанк.
      */
     override fun findPendingChunks(limit: Int): List<ChunkForProcessing> {
-        val sql = """
+        val sql =
+            """
             SELECT id, text_for_search 
             FROM article_chunks 
             WHERE processing_status = 'PENDING' 
             ORDER BY created_at 
             LIMIT ?
-        """.trimIndent()
+            """.trimIndent()
 
         return jdbcTemplate.query(sql, arrayOf(limit), chunkForProcessingRowMapper)
     }
@@ -64,8 +63,12 @@ class ArticleChunkJdbcRepositoryImpl (
     /**
      * Обновление чанк вектором.
      */
-    override fun updateWithEmbedding(chunkId: UUID, embedding: List<Float>) {
-        val sql = """
+    override fun updateWithEmbedding(
+        chunkId: UUID,
+        embedding: List<Float>,
+    ) {
+        val sql =
+            """
             UPDATE article_chunks 
             SET 
                 embedding = ?::vector,
@@ -73,18 +76,18 @@ class ArticleChunkJdbcRepositoryImpl (
                 processed_at = CURRENT_TIMESTAMP,
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
-        """.trimIndent()
+            """.trimIndent()
 
         val embeddingString = embedding.joinToString(", ", "[", "]")
 
         jdbcTemplate.update(sql, embeddingString, chunkId)
     }
 
-    private val chunkForProcessingRowMapper = RowMapper { rs: ResultSet, _ ->
-        ChunkForProcessing(
-            id = rs.getObject("id") as UUID,
-            text = rs.getString("text_for_search")
-        )
-    }
-
+    private val chunkForProcessingRowMapper =
+        RowMapper { rs: ResultSet, _ ->
+            ChunkForProcessing(
+                id = rs.getObject("id") as UUID,
+                text = rs.getString("text_for_search"),
+            )
+        }
 }

@@ -14,29 +14,23 @@ import ru.dan.rag.service.ArticleMessageListener
 
 @Configuration
 class RabbitMQConsumerConfig(
-    private val ragPropertiesConfig: RagPropertiesConfig
+    private val ragPropertiesConfig: RagPropertiesConfig,
 ) {
-
     @Bean
-    fun articleQueue(): Queue {
-        return QueueBuilder.durable(ragPropertiesConfig.rabbit.queue).build()
-    }
+    fun articleQueue(): Queue = QueueBuilder.durable(ragPropertiesConfig.rabbit.queue).build()
 
     @Bean
     fun jsonMessageConverter(): MessageConverter = JacksonJsonMessageConverter()
 
     @Bean
-    fun articleExchange(): DirectExchange {
-        return DirectExchange(ragPropertiesConfig.rabbit.exchange)
-    }
+    fun articleExchange(): DirectExchange = DirectExchange(ragPropertiesConfig.rabbit.exchange)
 
     @Bean
-    fun articleBinding(): Binding {
-        return BindingBuilder
+    fun articleBinding(): Binding =
+        BindingBuilder
             .bind(articleQueue())
             .to(articleExchange())
             .with(ragPropertiesConfig.rabbit.routingKey)
-    }
 
     /**
      * Адаптер, который связывает Listener с RabbitMQ
@@ -44,11 +38,10 @@ class RabbitMQConsumerConfig(
     @Bean
     fun messageListenerAdapter(
         articleMessageListener: ArticleMessageListener,
-        jsonMessageConverter: MessageConverter
+        jsonMessageConverter: MessageConverter,
     ): MessageListenerAdapter {
         val adapter = MessageListenerAdapter(articleMessageListener, "processMessage")
         adapter.setMessageConverter(jsonMessageConverter)
         return adapter
     }
-
 }

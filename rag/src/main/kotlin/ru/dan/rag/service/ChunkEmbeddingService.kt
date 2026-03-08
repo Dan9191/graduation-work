@@ -1,6 +1,5 @@
 package ru.dan.rag.service
 
-import kotlin.math.sqrt
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
@@ -8,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional
 import ru.dan.rag.client.GigachatModelsClient
 import ru.dan.rag.model.ChunkForProcessing
 import ru.dan.rag.repository.ArticleChunkRepository
+import kotlin.math.sqrt
 
 /**
  * Сервис работы с векторизацией.
@@ -15,9 +15,8 @@ import ru.dan.rag.repository.ArticleChunkRepository
 @Service
 class ChunkEmbeddingService(
     private val articleChunkRepository: ArticleChunkRepository,
-    private val gigaEmbeddingClient: GigachatModelsClient
+    private val gigaEmbeddingClient: GigachatModelsClient,
 ) {
-
     private val log = LoggerFactory.getLogger(ChunkEmbeddingService::class.java)
 
     /**
@@ -58,7 +57,7 @@ class ChunkEmbeddingService(
                 "Failed to process chunk with id={}: {}",
                 chunk.id,
                 e.message,
-                e
+                e,
             )
         }
     }
@@ -67,8 +66,9 @@ class ChunkEmbeddingService(
      * Обращение к сервису векторизации.
      */
     fun fetchEmbedding(text: String): List<Float> {
-        val response: List<Float> = gigaEmbeddingClient.getVector(text)
-            ?: throw RuntimeException("Embedding service returned empty data list")
+        val response: List<Float> =
+            gigaEmbeddingClient.getVector(text)
+                ?: throw RuntimeException("Embedding service returned empty data list")
 
         return normalizeEmbedding(response)
     }

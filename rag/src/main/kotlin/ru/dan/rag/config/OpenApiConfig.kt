@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class OpenApiConfig {
-
     @Bean
     fun customOpenAPI(): OpenAPI {
         val securitySchemeName = "bearerAuth"
@@ -20,9 +19,8 @@ class OpenApiConfig {
                 Info()
                     .title("RAG Service API")
                     .description("API документация сервиса RAG")
-                    .version("1.0")
-            )
-            .components(
+                    .version("1.0"),
+            ).components(
                 Components()
                     .addSecuritySchemes(
                         securitySchemeName,
@@ -30,9 +28,8 @@ class OpenApiConfig {
                             .type(SecurityScheme.Type.HTTP)
                             .scheme("bearer")
                             .bearerFormat("JWT")
-                            .description("JWT-токен в формате Bearer. Вставьте только сам токен (без слова Bearer)")
-                    )
-            )
-            .addSecurityItem(SecurityRequirement().addList(securitySchemeName))
+                            .description("JWT-токен в формате Bearer. Вставьте только сам токен (без слова Bearer)"),
+                    ),
+            ).addSecurityItem(SecurityRequirement().addList(securitySchemeName))
     }
 }

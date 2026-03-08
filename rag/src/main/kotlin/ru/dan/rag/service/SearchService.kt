@@ -9,12 +9,11 @@ import ru.dan.rag.model.answer.SearchResponse
 import ru.dan.rag.model.answer.SearchResult
 
 @Service
-class SearchService (
+class SearchService(
     private val jdbcTemplate: JdbcTemplate,
     private val chunkEmbeddingService: ChunkEmbeddingService,
     private val ragPropertiesConfig: RagPropertiesConfig,
 ) {
-
     private val log = LoggerFactory.getLogger(SearchService::class.java)
 
     fun search(request: SearchRequest): SearchResponse {
@@ -32,12 +31,12 @@ class SearchService (
     private fun findSimilarChunks(
         queryEmbedding: List<Float>,
         limit: Int,
-        minSimilarity: Double
+        minSimilarity: Double,
     ): List<SearchResult> {
-
         val embeddingString = queryEmbedding.joinToString(", ", "[", "]")
 
-        val sql = """
+        val sql =
+            """
             SELECT 
                 c.id as chunk_id,
                 c.text_for_search,
@@ -52,15 +51,16 @@ class SearchService (
                 AND (1 - (c.embedding <=> ?::vector)) >= ?
             ORDER BY c.embedding <=> ?::vector
             LIMIT ?
-        """.trimIndent()
+            """.trimIndent()
 
-        val params = arrayOf(
-            embeddingString,
-            embeddingString,
-            minSimilarity,
-            embeddingString,
-            limit
-        )
+        val params =
+            arrayOf(
+                embeddingString,
+                embeddingString,
+                minSimilarity,
+                embeddingString,
+                limit,
+            )
 
         return jdbcTemplate.query(sql, params) { rs, _ ->
             SearchResult(
@@ -68,7 +68,7 @@ class SearchService (
                 text = rs.getString("text_for_search"),
                 articleId = rs.getString("article_id"),
                 articleTitle = rs.getString("article_title"),
-                similarity = rs.getDouble("similarity")
+                similarity = rs.getDouble("similarity"),
             )
         }
     }

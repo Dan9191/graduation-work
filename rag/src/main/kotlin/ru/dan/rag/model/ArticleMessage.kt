@@ -14,5 +14,5 @@ data class ArticleMessage(
     val articleName: String,
     val eventType: String,
     val body: String,
-    val source: String?
+    val source: String?,
 )

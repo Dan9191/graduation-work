@@ -7,5 +7,5 @@ import java.util.*
  */
 data class ChunkForProcessing(
     val id: UUID,
-    val text: String
+    val text: String,
 )

@@ -1,9 +1,9 @@
 package ru.dan.rag.entity
 
-import java.time.OffsetDateTime
-import java.util.*
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
+import java.time.OffsetDateTime
+import java.util.*
 
 /**
  * Чанка.
@@ -21,5 +21,5 @@ data class ArticleChunk(
     val processedAt: OffsetDateTime? = null,
     val chunkMetadata: String?,
     val createdAt: OffsetDateTime? = null,
-    val updatedAt: OffsetDateTime? = null
+    val updatedAt: OffsetDateTime? = null,
 )

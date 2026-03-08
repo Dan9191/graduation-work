@@ -5,68 +5,56 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 @ConfigurationProperties(prefix = "app.rag")
-class RagPropertiesConfig (
+class RagPropertiesConfig(
     var rabbit: RabbitConfig = RabbitConfig(),
     var gigachat: GigachatConfig = GigachatConfig(),
-
     /**
      * Задержка (в миллисекундах) между запусками задачи отправки чанк на векторизацию.
      */
     var embeddingDelay: Long = 30000L,
-
     /**
      * Минимальный коэффициент схожести в векторном поиске.
      */
     var minSimilarity: Double = 0.80,
-
     /**
      * Максимальный размер сегмента при разбиении на чанки.
      */
     var maxSegmentSizeInChars: Int = 1000,
-
     /**
      * Размер перекрытия чанк.
      */
     var maxOverlapSizeInChars: Int = 150,
-
 ) {
-
     data class RabbitConfig(
         var exchange: String = "",
         var routingKey: String = "",
-        var queue: String = ""
+        var queue: String = "",
     )
 
     data class GigachatConfig(
-
         /**
          * Урл сервиса получения токена доступа.
          */
         var tokenUrl: String = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth",
-
         /**
          * Урл моделей векторизации.
          */
         var embeddingUrl: String = "https://gigachat.devices.sberbank.ru/api/v1/embeddings",
-
         /**
          * Урл языковой моделей.
          */
         var llmUrl: String = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions",
-
         /**
          * Токен для gigachat моделей.
          */
         var secretToken: String = "",
-
         /**
          * Модель для векторизации.
          */
         var embeddingModel: String = "EmbeddingsGigaR",
-
         /**
          * Языковая модель.
          */
-        var llmModel: String = "GigaChat-2-Max"
+        var llmModel: String = "GigaChat-2-Max",
     )
 }

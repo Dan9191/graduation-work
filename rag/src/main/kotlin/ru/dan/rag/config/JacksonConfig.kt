@@ -8,11 +8,7 @@ import org.springframework.context.annotation.Primary
 
 @Configuration
 class JacksonConfig {
-
     @Bean
     @Primary
-    fun objectMapper(): ObjectMapper {
-        return ObjectMapper()
-            .registerKotlinModule()
-    }
+    fun objectMapper(): ObjectMapper = ObjectMapper().registerKotlinModule()
 }

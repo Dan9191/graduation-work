@@ -18,33 +18,34 @@ import ru.dan.rag.service.SearchService
     allowedHeaders = ["*"],
     methods = [RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS],
     exposedHeaders = ["*"],
-    maxAge = 3600
+    maxAge = 3600,
 )
-class RequestController (
+class RequestController(
     private val searchService: SearchService,
-    private val llmService: LlmService
+    private val llmService: LlmService,
 ) {
-
     @PostMapping("/answer")
-    fun chat(@RequestBody request: SearchRequest): Map<String, String> {
+    fun chat(
+        @RequestBody request: SearchRequest,
+    ): Map<String, String> {
         val searchResponse = searchService.search(request)
 
-        val context = searchResponse.results
-            .joinToString("\n\n───\n") { result ->
-                buildString {
-                    append(result.text)
-                    if (result.articleTitle != null) append("\nИсточник: ${result.articleTitle}")
-                    if (result.articleId != null) append(" [id: ${result.articleId}]")
-                    if (result.similarity != null) append(" (score: %.3f)".format(result.similarity))
+        val context =
+            searchResponse.results
+                .joinToString("\n\n───\n") { result ->
+                    buildString {
+                        append(result.text)
+                        if (result.articleTitle != null) append("\nИсточник: ${result.articleTitle}")
+                        if (result.articleId != null) append(" [id: ${result.articleId}]")
+                        if (result.similarity != null) append(" (score: %.3f)".format(result.similarity))
+                    }
                 }
-            }
         val response = llmService.generateResponse(request.query, context)
         return mapOf("response" to response)
     }
 
     @PostMapping("/search")
-    fun search(@RequestBody request: SearchRequest): SearchResponse {
-        return searchService.search(request)
-    }
-
+    fun search(
+        @RequestBody request: SearchRequest,
+    ): SearchResponse = searchService.search(request)
 }

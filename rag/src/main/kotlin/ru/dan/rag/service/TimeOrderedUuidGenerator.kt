@@ -2,18 +2,15 @@ package ru.dan.rag.service
 
 import com.fasterxml.uuid.Generators
 import com.fasterxml.uuid.NoArgGenerator
-import java.util.*
 import org.springframework.stereotype.Component
+import java.util.*
 
 @Component
 class TimeOrderedUuidGenerator {
-
     private val generator: NoArgGenerator = Generators.timeBasedGenerator()
 
     /**
      * Генерация UUIDv7
-      */
-    fun generateUUID(): UUID {
-        return generator.generate()
-    }
+     */
+    fun generateUUID(): UUID = generator.generate()
 }

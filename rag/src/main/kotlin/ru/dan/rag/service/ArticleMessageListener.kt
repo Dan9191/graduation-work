@@ -11,9 +11,8 @@ private val logger = KotlinLogging.logger {}
 @Component
 class ArticleMessageListener(
     private val articleProcessingService: ArticleProcessingService,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
 ) {
-
     /**
      * Метод для обработки входящих сообщений из RabbitMQ
      * Имя метода должно совпадать с тем, что мы укажем в MessageListenerAdapter
@@ -28,7 +27,6 @@ class ArticleMessageListener(
             val resultId = articleProcessingService.processArticle(articleMessage)
             val duration = System.currentTimeMillis() - startTime
             logger.info { "Article processed successfully, result=$resultId, took ${duration}ms" }
-
         } catch (e: Exception) {
             val duration = System.currentTimeMillis() - startTime
             logger.error(e) { "Failed to process message after ${duration}ms" }

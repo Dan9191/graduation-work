@@ -9,9 +9,8 @@ import ru.dan.rag.entity.Article
  */
 @Repository
 class ArticleJdbcRepositoryImpl(
-    private val jdbcTemplate: JdbcTemplate
+    private val jdbcTemplate: JdbcTemplate,
 ) : ArticleJdbcRepository {
-
     override fun insert(article: Article) {
         jdbcTemplate.update(
             """
@@ -33,7 +32,7 @@ class ArticleJdbcRepositoryImpl(
             article.originalContent,
             article.source,
             article.createdAt,
-            article.updatedAt
+            article.updatedAt,
         )
     }
 }
