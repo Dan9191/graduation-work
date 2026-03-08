@@ -1,0 +1,11 @@
+app:
+  rag:
+    rabbit:
+      exchange: "article.exchange"
+      routing-key: "article.outbox"
+      queue: "article.outbox.queue"
+    gigachat :
+      embedding-model: ${EMBEDDING_MODEL:EmbeddingsGigaR}
+      embedding-url: ${EMBEDDING_URL:https://gigachat.devices.sberbank.ru/api/v1/embeddings}
+      secret-token: ${SECRET_TOKEN:MDE5Y2JmNGQtZTM2MC03OWExLWI1YjMtMGYxNTI4OWExMzc2OjQxMDlkOWJiLWY5MDItNDY3Ny04NDhiLWYwYThkNWMwYWVkZA==}
+      token-url: ${TOKEN_URL:https://ngw.devices.sberbank.ru:9443/api/v2/oauth}
