@@ -3,7 +3,7 @@ package ru.dan.rag.entity
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
 import java.time.OffsetDateTime
-import java.util.*
+import java.util.UUID
 
 /**
  * Чанка.

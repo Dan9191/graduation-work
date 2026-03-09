@@ -4,7 +4,7 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 /**
  * Реализация паттерна outbox для контроля отправки статей на векторизацию: сущность.

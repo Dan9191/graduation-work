@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository
 import ru.dan.rag.entity.ArticleChunk
 import ru.dan.rag.model.ChunkForProcessing
 import java.sql.ResultSet
-import java.util.*
+import java.util.UUID
 
 /**
  * Реализация методов для работы с чанками.

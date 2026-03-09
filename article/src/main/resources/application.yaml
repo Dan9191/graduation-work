@@ -6,22 +6,12 @@ spring:
     name: article
   security:
     oauth2:
-      resourceserver:
+      resource-server:
         jwt:
           issuer-uri: ${KEYCLOAK:http://localhost:9090/realms/graduation}
   r2dbc:
     url: ${DATASOURCE_R2DBC_URL:r2dbc:postgresql://localhost:5432/rag?currentSchema=article_service}
     username: ${DATASOURCE_NAME:rag_user}
-    password: ${DATASOURCE_PASSWORD:rag_pass}
-  flyway:
-    schemas: article_service
-    enabled: true
-    locations: classpath:db/migration
-    default-schema: article_service
-    baseline-on-migrate: true
-    create-schemas: true
-    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/rag}
-    user: ${DATASOURCE_NAME:rag_user}
     password: ${DATASOURCE_PASSWORD:rag_pass}
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
@@ -32,7 +22,14 @@ spring:
     connection-timeout: ${RABBITMQ_CON_TIMEOUT:5000}
 
 app:
-  outbox:
+  article:
+    flyway:
+      base-line-on-migrate: true
+      data-source-url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/rag}
+      user: ${DATASOURCE_NAME:rag_user}
+      password: ${DATASOURCE_PASSWORD:rag_pass}
+      schemas: article_service
+      locations: classpath:db/migration
     rabbit:
       exchange: "article.exchange"
       routing-key: "article.outbox"

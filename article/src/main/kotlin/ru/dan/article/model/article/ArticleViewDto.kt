@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import ru.dan.article.model.section.ShortSectionDto
 import ru.dan.article.model.tag.TagDto
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 @Schema(description = "DTO для представления статьи")
 data class ArticleViewDto(

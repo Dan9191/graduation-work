@@ -5,7 +5,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import ru.dan.article.entity.ArticleOutbox
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 /**
  * Реализация паттерна outbox для контроля отправки статей на векторизацию: R2dbc репозиторий.

@@ -17,16 +17,8 @@ java {
     }
 }
 
-extra["springAiVersion"] = "2.0.0-M2"
-
 repositories {
     mavenCentral()
-}
-
-dependencyManagement {
-    imports {
-        mavenBom("org.springframework.ai:spring-ai-bom:${property("springAiVersion")}")
-    }
 }
 
 dependencies {
@@ -59,6 +51,8 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter:1.21.4")
     testImplementation("org.testcontainers:jdbc:1.21.4")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 }
 
 kotlin {

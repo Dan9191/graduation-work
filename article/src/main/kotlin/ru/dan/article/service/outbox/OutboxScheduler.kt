@@ -3,16 +3,16 @@ package ru.dan.article.service.outbox
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
-import ru.dan.article.config.OutboxProperties
+import ru.dan.article.config.ArticleProperties
 
 @Component
 class OutboxScheduler(
     private val outboxService: OutboxService,
-    private val outboxProperties: OutboxProperties,
+    private val articleProperties: ArticleProperties,
 ) {
-    @Scheduled(cron = "#{@outboxProperties.scheduler.cron}")
+    @Scheduled(cron = "#{@articleProperties.scheduler.cron}")
     fun processOutbox() {
-        if (outboxProperties.scheduler.enabled) {
+        if (articleProperties.scheduler.enabled) {
             outboxService
                 .processPendingMessages()
                 .onErrorResume { Mono.empty() }

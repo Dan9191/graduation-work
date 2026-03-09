@@ -5,7 +5,7 @@ import org.springframework.data.repository.reactive.ReactiveCrudRepository
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import ru.dan.article.entity.Tag
-import java.util.*
+import java.util.UUID
 
 interface TagRepository : ReactiveCrudRepository<Tag, Long> {
     /**

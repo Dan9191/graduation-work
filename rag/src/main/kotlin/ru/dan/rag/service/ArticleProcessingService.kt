@@ -16,7 +16,7 @@ import ru.dan.rag.model.ArticleMessage
 import ru.dan.rag.repository.ArticleChunkRepository
 import ru.dan.rag.repository.ArticleRepository
 import java.time.OffsetDateTime
-import java.util.*
+import java.util.UUID
 
 /**
  * Сервис первичного приема статей в формате Markdown.

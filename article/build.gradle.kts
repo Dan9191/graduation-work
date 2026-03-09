@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm")
     kotlin("plugin.spring")
     kotlin("plugin.jpa")
+    kotlin("kapt")
     id("org.springframework.boot")
     id("io.spring.dependency-management")
     id("org.jlleitschuh.gradle.ktlint") version "14.1.0"
@@ -33,13 +34,12 @@ dependencies {
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("com.fasterxml.uuid:java-uuid-generator:4.1.1")
-    implementation("com.fasterxml.uuid:java-uuid-generator:4.1.1")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.7.0")
-    runtimeOnly("org.postgresql:postgresql")
+    implementation("org.postgresql:postgresql")
     implementation("org.postgresql:r2dbc-postgresql")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 
@@ -51,6 +51,8 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter:1.21.4")
     testImplementation("org.testcontainers:jdbc:1.21.4")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    kapt("org.springframework.boot:spring-boot-configuration-processor")
 }
 
 kotlin {

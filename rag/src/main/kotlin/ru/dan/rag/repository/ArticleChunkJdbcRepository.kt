@@ -2,7 +2,7 @@ package ru.dan.rag.repository
 
 import ru.dan.rag.entity.ArticleChunk
 import ru.dan.rag.model.ChunkForProcessing
-import java.util.*
+import java.util.UUID
 
 /**
  * Репозиторий для работы с чанками.

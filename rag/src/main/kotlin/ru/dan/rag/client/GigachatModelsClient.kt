@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestTemplate
 import ru.dan.rag.config.RagPropertiesConfig
-import java.util.*
+import java.util.UUID
 
 private val logger = KotlinLogging.logger {}
 

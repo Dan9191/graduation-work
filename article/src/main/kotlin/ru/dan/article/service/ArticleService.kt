@@ -22,7 +22,7 @@ import ru.dan.article.repository.ArticleRepository
 import ru.dan.article.repository.SectionRepository
 import ru.dan.article.repository.TagRepository
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 private val logger = KotlinLogging.logger {}
 

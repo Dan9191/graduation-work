@@ -3,7 +3,7 @@ package ru.dan.article.model
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import ru.dan.article.entity.ArticleOutbox
-import java.util.*
+import java.util.UUID
 
 /**
  * Модель сообщения для отправки в RabbitMQ

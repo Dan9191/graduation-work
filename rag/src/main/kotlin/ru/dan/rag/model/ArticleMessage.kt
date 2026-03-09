@@ -2,7 +2,7 @@ package ru.dan.rag.model
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
-import java.util.*
+import java.util.UUID
 
 /**
  * Модель сообщения для отправки в RabbitMQ

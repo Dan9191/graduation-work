@@ -6,7 +6,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
-import ru.dan.article.config.OutboxProperties
+import ru.dan.article.config.ArticleProperties
 import ru.dan.article.entity.ArticleOutbox
 import ru.dan.article.model.ArticleOutboxMessage
 import ru.dan.article.repository.ArticleOutboxRepository
@@ -18,12 +18,12 @@ class OutboxService(
     private val articleOutboxRepository: ArticleOutboxRepository,
     private val rabbitTemplate: RabbitTemplate,
     private val objectMapper: ObjectMapper,
-    outboxProperties: OutboxProperties,
+    articleProperties: ArticleProperties,
 ) {
-    private val maxAttempts = outboxProperties.maxAttempts
-    private val batchSize = outboxProperties.scheduler.batchSize
-    private val routingKey = outboxProperties.rabbit.routingKey
-    private val exchange = outboxProperties.rabbit.exchange
+    private val maxAttempts = articleProperties.maxAttempts
+    private val batchSize = articleProperties.scheduler.batchSize
+    private val routingKey = articleProperties.rabbit.routingKey
+    private val exchange = articleProperties.rabbit.exchange
 
     /**
      * Основной метод обработки: выборка записей, отправка, обновление.

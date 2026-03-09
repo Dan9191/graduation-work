@@ -10,18 +10,18 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class RabbitMQConfig(
-    private val outboxProperties: OutboxProperties,
+    private val articleProperties: ArticleProperties,
 ) {
     @Bean
-    fun outboxQueue(): Queue = QueueBuilder.durable(outboxProperties.rabbit.queue).build()
+    fun outboxQueue(): Queue = QueueBuilder.durable(articleProperties.rabbit.queue).build()
 
     @Bean
-    fun outboxExchange(): DirectExchange = DirectExchange(outboxProperties.rabbit.exchange)
+    fun outboxExchange(): DirectExchange = DirectExchange(articleProperties.rabbit.exchange)
 
     @Bean
     fun outboxBinding(): Binding =
         BindingBuilder
             .bind(outboxQueue())
             .to(outboxExchange())
-            .with(outboxProperties.rabbit.routingKey)
+            .with(articleProperties.rabbit.routingKey)
 }
