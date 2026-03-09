@@ -14,12 +14,18 @@
 - Автоматическое форматирование: `./gradlew :rag:ktlintFormat`
 - Сборка проекта с проверкой стиля: `./gradlew :rag:build`
 
-## Service-redis
+## Article
 ### Сборка
 ```shell
-./gradlew :service-redis:clean build
+./gradlew :article:clean build
 ```
 
 ### Запуск
 ```shell
-./gradlew :service-redis:bootRun
+./gradlew :article:bootRun
+```
+**Код-стайл:**
+- Для форматирования кода и проверки стиля используется [ktlint](https://ktlint.github.io/)
+- Запуск проверки стиля: `./gradlew :article:ktlintCheck`
+- Автоматическое форматирование: `./gradlew :article:ktlintFormat`
+- Сборка проекта с проверкой стиля: `./gradlew :article:build`

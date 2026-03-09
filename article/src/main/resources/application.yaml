@@ -1,0 +1,63 @@
+server:
+  port: 8057
+
+spring:
+  application:
+    name: article
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK:http://localhost:9090/realms/graduation}
+  r2dbc:
+    url: ${DATASOURCE_R2DBC_URL:r2dbc:postgresql://localhost:5432/rag?currentSchema=article_service}
+    username: ${DATASOURCE_NAME:rag_user}
+    password: ${DATASOURCE_PASSWORD:rag_pass}
+  flyway:
+    schemas: article_service
+    enabled: true
+    locations: classpath:db/migration
+    default-schema: article_service
+    baseline-on-migrate: true
+    create-schemas: true
+    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/rag}
+    user: ${DATASOURCE_NAME:rag_user}
+    password: ${DATASOURCE_PASSWORD:rag_pass}
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    virtual-host: ${RABBITMQ_VIRTUAL_HOST:/}
+    connection-timeout: ${RABBITMQ_CON_TIMEOUT:5000}
+
+app:
+  outbox:
+    rabbit:
+      exchange: "article.exchange"
+      routing-key: "article.outbox"
+      queue: "article.outbox.queue"
+    scheduler:
+      cron: "0/30 * * * * ?"
+      batch-size: 10
+      enabled: true
+    max-attempts: 3
+    retry-delay: 5000
+
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: health,info,flyway
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger - %msg%n"
+  level:
+    root: INFO
+#    org.springframework.data.r2dbc: DEBUG
+#    io.r2dbc.postgresql.QUERY: DEBUG
+#    io.r2dbc.postgresql.PARAM: TRACE
