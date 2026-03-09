@@ -1,0 +1,8 @@
+{
+  "apiUrl": "http://localhost:8033",
+  "keycloak": {
+    "url": "http://localhost:9090",
+    "realm": "graduation",
+    "clientId": "graduation-frontend"
+  }
+}
