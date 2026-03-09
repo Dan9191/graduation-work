@@ -1,4 +1,6 @@
 rootProject.name = "graduation"
 
-include("rag")
-include("article")
+include("rag",
+    "article",
+    "gateway"
+)

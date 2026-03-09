@@ -1,0 +1,27 @@
+server:
+  port: 8033
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: article
+              uri: http://localhost:8057
+              predicates:
+                - Path=/knowledge/**
+              filters:
+                - StripPrefix=1
+
+            - id: rag
+              uri: http://localhost:8094
+              predicates:
+                - Path=/embedding/**
+              filters:
+                - StripPrefix=1
+
+          default-filters:
+            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin

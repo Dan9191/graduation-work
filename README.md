@@ -1,3 +1,16 @@
+
+## GATEWAY
+### Сборка
+```shell
+./gradlew :gateway:clean build
+```
+
+### Запуск
+```shell
+./gradlew :gateway:bootRun
+```
+
+
 ## RAG
 ### Сборка
 ```shell
