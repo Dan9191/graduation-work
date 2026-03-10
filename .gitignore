@@ -37,3 +37,4 @@ out/
 .vscode/
 
 rag/src/main/resources/application-dev.yaml
+/graduation-frontend/node_modules/
