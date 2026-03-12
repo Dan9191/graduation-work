@@ -78,7 +78,7 @@ export default function ArticlePage() {
                 <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 border-b-2 border-black pb-4">
                     {article.section && (
                         <Link
-                            to={`/sections/${article.section.id}`}
+                            to={`/articles?sectionId=${article.section.id}`}
                             className="border-2 border-black px-2 py-1 hover:bg-black hover:text-white transition"
                         >
                             {article.section.name}
@@ -89,7 +89,7 @@ export default function ArticlePage() {
                         {article.tags?.map(tag => (
                             <Link
                                 key={tag.id}
-                                to={`/tags/${tag.id}`}
+                                to={`/articles?tagId=${tag.id}`}
                                 className="border border-black px-2 py-1 text-xs hover:bg-black hover:text-white transition"
                             >
                                 #{tag.name}
@@ -125,9 +125,9 @@ export default function ArticlePage() {
                 </div>
             )}
             {article.source && (
-                    <div className="mb-8 p-4 border-2 border-black bg-gray-50">
-                        <p className="text-gray-700 italic">Источник : {article.source}</p>
-                    </div>
+                <div className="mb-8 p-4 border-2 border-black bg-gray-50">
+                    <p className="text-gray-700 italic">Источник : {article.source}</p>
+                </div>
             )}
 
             <div className="article-body prose prose-lg max-w-none border-t-2 border-black pt-8">
