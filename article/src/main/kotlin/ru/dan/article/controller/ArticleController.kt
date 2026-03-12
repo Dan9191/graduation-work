@@ -99,8 +99,23 @@ class ArticleController(
         @RequestParam(defaultValue = "20") size: Int,
         @RequestParam(defaultValue = "createdAt") sortBy: String,
         @RequestParam(defaultValue = "DESC") direction: String,
+        @RequestParam(required = false) sectionId: Long?,
+        @RequestParam(required = false) tagId: Long?,
     ): Mono<PagedShortArticles> {
-        val dir = if (direction.uppercase() == "ASC") Sort.Direction.ASC else Sort.Direction.DESC
-        return articleService.getArticlesPaged(page, size, sortBy, dir)
+        val dir =
+            if (direction.uppercase() == "ASC") {
+                Sort.Direction.ASC
+            } else {
+                Sort.Direction.DESC
+            }
+
+        return articleService.getArticlesPageFiltered(
+            page,
+            size,
+            sortBy,
+            dir,
+            sectionId,
+            tagId,
+        )
     }
 }

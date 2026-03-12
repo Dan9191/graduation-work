@@ -1,7 +1,6 @@
 package ru.dan.article.service
 
 import mu.KotlinLogging
-import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -276,18 +275,20 @@ class ArticleService(
             .doOnError { e -> logger.warn("Failed to update article id={}: {}", id, e.message) }
 
     @Transactional(readOnly = true)
-    fun getArticlesPaged(
+    fun getArticlesPageFiltered(
         page: Int = 0,
         size: Int = 20,
         sortBy: String = "createdAt",
         direction: Sort.Direction = Sort.Direction.DESC,
+        sectionId: Long?,
+        tagId: Long?,
     ): Mono<PagedShortArticles> {
-        val pageable = PageRequest.of(page, size, Sort.by(direction, sortBy))
+        val offset = page * size
 
         return Mono
             .zip(
                 articleRepository
-                    .findAllBy(pageable)
+                    .findFiltered(sectionId, tagId, size, offset.toLong())
                     .flatMap { article ->
                         Mono
                             .zip(
@@ -314,7 +315,7 @@ class ArticleService(
                                 )
                             }
                     }.collectList(),
-                articleRepository.countAll(),
+                articleRepository.countFiltered(sectionId, tagId),
             ).map { tuple ->
                 val articles = tuple.t1
                 val total = tuple.t2

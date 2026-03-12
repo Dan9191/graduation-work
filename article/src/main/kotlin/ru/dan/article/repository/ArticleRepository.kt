@@ -1,6 +1,5 @@
 package ru.dan.article.repository
 
-import org.springframework.data.domain.Pageable
 import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.reactive.ReactiveCrudRepository
 import reactor.core.publisher.Flux
@@ -31,8 +30,35 @@ interface ArticleRepository :
     @Query("DELETE FROM article_tag WHERE article_id = :articleId")
     fun deleteArticleTagRelations(articleId: UUID): Mono<Void>
 
-    fun findAllBy(pageable: Pageable): Flux<Article>
+    @Query(
+        """
+    SELECT DISTINCT a.*
+    FROM article a
+    LEFT JOIN article_tag at ON at.article_id = a.id
+    WHERE (:sectionId IS NULL OR a.section_id = :sectionId)
+      AND (:tagId IS NULL OR at.tag_id = :tagId)
+    ORDER BY created_at DESC
+    LIMIT :limit OFFSET :offset
+    """,
+    )
+    fun findFiltered(
+        sectionId: Long?,
+        tagId: Long?,
+        limit: Int,
+        offset: Long,
+    ): Flux<Article>
 
-    @Query("SELECT COUNT(*) FROM article")
-    fun countAll(): Mono<Long>
+    @Query(
+        """
+    SELECT COUNT(DISTINCT a.id)
+    FROM article a
+    LEFT JOIN article_tag at ON at.article_id = a.id
+    WHERE (:sectionId IS NULL OR a.section_id = :sectionId)
+      AND (:tagId IS NULL OR at.tag_id = :tagId)
+    """,
+    )
+    fun countFiltered(
+        sectionId: Long?,
+        tagId: Long?,
+    ): Mono<Long>
 }
