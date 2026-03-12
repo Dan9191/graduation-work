@@ -10,6 +10,7 @@ export default function TagsPage() {
     const [newTagName, setNewTagName] = useState('');
     const [isCreating, setIsCreating] = useState(false);
     const [deletingId, setDeletingId] = useState(null);
+    const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
     const keycloak = getKeycloak();
     const isAdmin = keycloak?.authenticated &&
@@ -58,23 +59,19 @@ export default function TagsPage() {
         }
     };
 
-    const handleDeleteTag = async (tagId, tagName) => {
-        if (!window.confirm(`Вы уверены, что хотите удалить тег "${tagName}"?`)) {
-            return;
-        }
-
+    const handleDeleteTag = async (tagId) => {
         setDeletingId(tagId);
         try {
             const api = getApi();
             await api.delete(`/knowledge/api/v1/tags/${tagId}`);
 
-            // Удаляем тег из списка
             setTags(prev => prev.filter(tag => tag.id !== tagId));
         } catch (err) {
             alert('Не удалось удалить тег');
             console.error(err);
         } finally {
             setDeletingId(null);
+            setConfirmDeleteId(null);
         }
     };
 
@@ -149,30 +146,37 @@ export default function TagsPage() {
                             {/* Кнопка удаления (только для админа) */}
                             {isAdmin && (
                                 <div className="border-t-2 border-black p-2 flex justify-end">
-                                    <button
-                                        onClick={() => handleDeleteTag(tag.id, tag.name)}
-                                        disabled={deletingId === tag.id}
-                                        className="text-xs border border-black px-2 py-1 hover:bg-black hover:text-white transition disabled:opacity-30"
-                                    >
-                                        {deletingId === tag.id ? '...' : '× Удалить'}
-                                    </button>
+                                    {confirmDeleteId === tag.id ? (
+                                        <div className="flex gap-2 text-xs">
+                                            <span className="text-red-600">Удалить?</span>
+
+                                            <button
+                                                onClick={() => handleDeleteTag(tag.id)}
+                                                className="border border-red-600 px-2 py-1 text-red-600 hover:bg-red-600 hover:text-white transition"
+                                            >
+                                                Да
+                                            </button>
+
+                                            <button
+                                                onClick={() => setConfirmDeleteId(null)}
+                                                className="border border-black px-2 py-1 hover:bg-black hover:text-white transition"
+                                            >
+                                                Нет
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <button
+                                            onClick={() => setConfirmDeleteId(tag.id)}
+                                            disabled={deletingId === tag.id}
+                                            className="text-xs border border-black px-2 py-1 hover:bg-black hover:text-white transition disabled:opacity-30"
+                                        >
+                                            × Удалить
+                                        </button>
+                                    )}
                                 </div>
                             )}
                         </div>
                     ))}
-                </div>
-            )}
-
-            {/* Информация о доступных действиях */}
-            {isAuthenticated && !isAdmin && (
-                <div className="mt-8 p-4 border-2 border-black bg-gray-50 text-sm text-gray-600">
-                    <p>👤 Вы вошли как пользователь. Доступен просмотр тегов.</p>
-                </div>
-            )}
-
-            {isAdmin && (
-                <div className="mt-8 p-4 border-2 border-black bg-gray-50 text-sm text-gray-600">
-                    <p>👑 Вы вошли как администратор. Доступно создание и удаление тегов.</p>
                 </div>
             )}
         </div>
