@@ -6,4 +6,5 @@
 ### `npm install -D tailwindcss@3 postcss@8 autoprefixer@10`
 ### `npx tailwindcss init -p`
 ### `npm install sockjs-client @stomp/stompjs`
+### `npm install react-markdown`
 ### `npm start`

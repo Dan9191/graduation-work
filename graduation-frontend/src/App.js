@@ -1,6 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 import Navigation from "./components/Navigation";
 import ArticlesPage from "./pages/ArticlesPage";
+import ArticlePage from "./pages/ArticlePage";
+import EditArticlePage from "./pages/EditArticlePage";
 
 function TagsPage()    { return <div className="p-10">Теги — в разработке</div>; }
 function SectionsPage() { return <div className="p-10">Секции — в разработке</div>; }
@@ -15,7 +17,8 @@ export default function App() {
             <Routes>
                 <Route path="/" element={<ArticlesPage />} />
                 <Route path="/articles" element={<ArticlesPage />} />
-                <Route path="/articles/:id" element={<div>Страница одной статьи — следующий шаг</div>} />
+                <Route path="/articles/:id" element={<ArticlePage />} />
+                <Route path="/articles/:id/edit" element={<EditArticlePage />} />
 
                 <Route path="/tags" element={<TagsPage />} />
                 <Route path="/sections" element={<SectionsPage />} />
