@@ -2,10 +2,11 @@ import { Routes, Route } from "react-router-dom";
 import Navigation from "./components/Navigation";
 import ArticlesPage from "./pages/ArticlesPage";
 import ArticlePage from "./pages/ArticlePage";
+import CreateArticlePage from "./pages/CreateArticlePage";
 import EditArticlePage from "./pages/EditArticlePage";
 import TagsPage from "./pages/TagsPage";
+import SectionsPage from "./pages/SectionsPage";
 
-function SectionsPage() { return <div className="p-10">Секции — в разработке</div>; }
 function VectorSearchPage() { return <div className="p-10">Векторный поиск — в разработке</div>; }
 function VisualizationPage() { return <div className="p-10">Визуализация — в разработке</div>; }
 
@@ -19,8 +20,8 @@ export default function App() {
                 <Route path="/articles" element={<ArticlesPage />} />
                 <Route path="/articles/:id" element={<ArticlePage />} />
                 <Route path="/articles/:id/edit" element={<EditArticlePage />} />
-
-                <Route path="/tags" element={<TagsPage />} /> {/* Обновленный маршрут */}
+                <Route path="/articles/new" element={<CreateArticlePage />} />
+                <Route path="/tags" element={<TagsPage />} />
                 <Route path="/sections" element={<SectionsPage />} />
                 <Route path="/vector-search" element={<VectorSearchPage />} />
                 <Route path="/visualization" element={<VisualizationPage />} />
