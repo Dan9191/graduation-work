@@ -1,21 +1,136 @@
+// TagsPage.jsx
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { getApi } from "../api/api";
 import { getKeycloak } from "../auth/keycloak";
 
+// ==================== МОДАЛКА СОЗДАНИЯ ТЕГА ====================
+function TagModal({ isOpen, onClose, onSave, tag }) {
+    const [name, setName] = useState("");
+    const [saving, setSaving] = useState(false);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        setName(tag ? tag.name || "" : "");
+    }, [isOpen, tag]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!name.trim()) return;
+
+        setSaving(true);
+        try {
+            const api = getApi();
+            if (tag) {
+                alert("Редактирование тегов пока не поддерживается");
+            } else {
+                await api.post("/knowledge/api/v1/tags", { name: name.trim() });
+            }
+            onSave();
+        } catch (err) {
+            alert("Ошибка при сохранении тега");
+            console.error(err);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="modal-overlay">
+            <div className="modal-content">
+                <h2 className="modal-title">Создать тег</h2>
+                <form onSubmit={handleSubmit} className="space-y-5">
+                    <div>
+                        <label className="block mb-1">Название тега *</label>
+                        <input
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className="brut-input"
+                            required
+                            autoFocus
+                        />
+                    </div>
+
+                    <div className="flex gap-4">
+                        <button
+                            type="submit"
+                            disabled={saving || !name.trim()}
+                            className="brut-btn primary"
+                        >
+                            {saving ? "Сохранение..." : "Создать"}
+                        </button>
+                        <button type="button" onClick={onClose} className="brut-btn">
+                            Отмена
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+}
+
+// ==================== КАРТОЧКА ТЕГА ====================
+function TagCard({ tag, isAdmin, onDelete, onClick }) {
+    const [confirming, setConfirming] = useState(false);
+
+    return (
+        <div className="card tag-card">
+            <div
+                className="title cursor-pointer hover:underline"
+                onClick={() => onClick?.(tag.id)}
+            >
+                {tag.name}
+            </div>
+
+            <div className="meta mt-1">ID: {tag.id}</div>
+
+            {isAdmin && (
+                <div className="actions mt-auto">
+                    <span
+                        className="action delete"
+                        onClick={() => setConfirming(!confirming)}
+                    >
+                        удалить
+                    </span>
+
+                    {confirming && (
+                        <span className="confirm-group">
+                            <button
+                                className="confirm-btn yes"
+                                onClick={() => {
+                                    onDelete(tag.id);
+                                    setConfirming(false);
+                                }}
+                            >
+                                да
+                            </button>
+                            <button
+                                className="confirm-btn no"
+                                onClick={() => setConfirming(false)}
+                            >
+                                нет
+                            </button>
+                        </span>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+}
+
+// ==================== ОСНОВНАЯ СТРАНИЦА ====================
 export default function TagsPage() {
     const [tags, setTags] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [newTagName, setNewTagName] = useState('');
-    const [isCreating, setIsCreating] = useState(false);
-    const [deletingId, setDeletingId] = useState(null);
-    const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+    const [modalOpen, setModalOpen] = useState(false);
 
     const keycloak = getKeycloak();
-    const isAdmin = keycloak?.authenticated &&
-        keycloak.hasRealmRole?.('graduation.admin');
-    const isAuthenticated = keycloak?.authenticated;
+    const isAdmin = keycloak?.authenticated && keycloak.hasRealmRole?.("graduation.admin");
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchTags();
@@ -25,7 +140,7 @@ export default function TagsPage() {
         setLoading(true);
         try {
             const api = getApi();
-            const res = await api.get('/knowledge/api/v1/tags');
+            const res = await api.get("/knowledge/api/v1/tags");
             setTags(res.data || []);
         } catch (err) {
             setError("Не удалось загрузить теги");
@@ -35,150 +150,74 @@ export default function TagsPage() {
         }
     };
 
-    const handleCreateTag = async (e) => {
-        e.preventDefault();
-        if (!newTagName.trim()) return;
+    const handleCreate = () => {
+        setModalOpen(true);
+    };
 
-        setIsCreating(true);
+    const handleDelete = async (id) => {
         try {
-            const api = getApi();
-            const res = await api.post('/knowledge/api/v1/tags', {
-                name: newTagName.trim()
-            });
-
-            // Добавляем новый тег в список
-            setTags(prev => [...prev, res.data].sort((a, b) =>
-                a.name.localeCompare(b.name)
-            ));
-            setNewTagName('');
+            await getApi().delete(`/knowledge/api/v1/tags/${id}`);
+            fetchTags();
         } catch (err) {
-            alert('Не удалось создать тег');
-            console.error(err);
-        } finally {
-            setIsCreating(false);
+            if (err.response?.status === 409 || err.response?.status === 400) {
+                alert("Нельзя удалить — тег используется в статьях");
+            } else {
+                alert("Ошибка удаления тега");
+            }
         }
     };
 
-    const handleDeleteTag = async (tagId) => {
-        setDeletingId(tagId);
-        try {
-            const api = getApi();
-            await api.delete(`/knowledge/api/v1/tags/${tagId}`);
-
-            setTags(prev => prev.filter(tag => tag.id !== tagId));
-        } catch (err) {
-            alert('Не удалось удалить тег');
-            console.error(err);
-        } finally {
-            setDeletingId(null);
-            setConfirmDeleteId(null);
-        }
+    const handleTagClick = (tagId) => {
+        navigate(`/articles?tagId=${tagId}`);
     };
 
-    if (loading) return <div className="p-10 text-center">Загрузка...</div>;
-    if (error) return <div className="p-10 text-red-600">{error}</div>;
+    const handleModalSave = () => {
+        setModalOpen(false);
+        fetchTags();
+    };
+
+    if (loading) return <div className="loading">Загрузка тегов...</div>;
+    if (error) return <div className="error">{error}</div>;
 
     return (
-        <div className="container px-8 py-10 max-w-4xl mx-auto">
-            {/* Заголовок */}
-            <div className="flex justify-between items-center mb-8 border-b-2 border-black pb-4">
-                <h1 className="text-2xl font-bold">Теги</h1>
-                <span className="text-sm text-gray-600">
-                    Всего тегов: {tags.length}
-                </span>
+        <div className="container">
+            <div className="page-header">
+                <h1>Теги</h1>
+                {isAdmin && (
+                    <span className="create-root-btn" onClick={handleCreate}>
+                        + новый тег
+                    </span>
+                )}
             </div>
 
-            {/* Форма создания нового тега (только для админа) */}
-            {isAdmin && (
-                <div className="mb-8 border-2 border-black p-6">
-                    <h2 className="text-lg font-medium mb-4">Создать новый тег</h2>
-                    <form onSubmit={handleCreateTag} className="flex gap-4">
-                        <input
-                            type="text"
-                            value={newTagName}
-                            onChange={(e) => setNewTagName(e.target.value)}
-                            placeholder="Введите название тега"
-                            className="flex-1 border-2 border-black p-2 bg-white focus:outline-none focus:bg-gray-50"
-                            disabled={isCreating}
-                            autoFocus
-                        />
-                        <button
-                            type="submit"
-                            disabled={isCreating || !newTagName.trim()}
-                            className="border-2 border-black px-6 py-2 bg-black text-white hover:bg-white hover:text-black transition disabled:opacity-50"
-                        >
-                            {isCreating ? 'Создание...' : 'Создать'}
-                        </button>
-                    </form>
-                </div>
-            )}
-
-            {/* Сетка тегов */}
             {tags.length === 0 ? (
-                <div className="text-center py-20 border-2 border-black">
-                    <p className="text-gray-500">Теги не найдены</p>
+                <div className="empty-card">
+                    Тегов пока нет
                     {isAdmin && (
-                        <p className="text-sm text-gray-400 mt-2">
-                            Создайте первый тег с помощью формы выше
-                        </p>
+                        <div className="mt-4 cursor-pointer" onClick={handleCreate}>
+                            Создать первый тег →
+                        </div>
                     )}
                 </div>
             ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {tags.map(tag => (
-                        <div
+                <div className="tags-grid">
+                    {tags.map((tag) => (
+                        <TagCard
                             key={tag.id}
-                            className="border-2 border-black bg-white hover:bg-gray-50 transition group"
-                        >
-                            {/* Ссылка на статьи с тегом */}
-                            <Link
-                                to={`/articles?tagId=${tag.id}`}
-                                className="block p-4"
-                            >
-                                <div className="font-medium text-lg mb-1">
-                                    #{tag.name}
-                                </div>
-                                <div className="text-xs text-gray-500">
-                                    ID: {tag.id}
-                                </div>
-                            </Link>
-
-                            {/* Кнопка удаления (только для админа) */}
-                            {isAdmin && (
-                                <div className="border-t-2 border-black p-2 flex justify-end">
-                                    {confirmDeleteId === tag.id ? (
-                                        <div className="flex gap-2 text-xs">
-                                            <span className="text-red-600">Удалить?</span>
-
-                                            <button
-                                                onClick={() => handleDeleteTag(tag.id)}
-                                                className="border border-red-600 px-2 py-1 text-red-600 hover:bg-red-600 hover:text-white transition"
-                                            >
-                                                Да
-                                            </button>
-
-                                            <button
-                                                onClick={() => setConfirmDeleteId(null)}
-                                                className="border border-black px-2 py-1 hover:bg-black hover:text-white transition"
-                                            >
-                                                Нет
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <button
-                                            onClick={() => setConfirmDeleteId(tag.id)}
-                                            disabled={deletingId === tag.id}
-                                            className="text-xs border border-black px-2 py-1 hover:bg-black hover:text-white transition disabled:opacity-30"
-                                        >
-                                            × Удалить
-                                        </button>
-                                    )}
-                                </div>
-                            )}
-                        </div>
+                            tag={tag}
+                            isAdmin={isAdmin}
+                            onDelete={handleDelete}
+                            onClick={handleTagClick}
+                        />
                     ))}
                 </div>
             )}
+
+            <TagModal
+                isOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+                onSave={handleModalSave}
+            />
         </div>
     );
 }

@@ -108,7 +108,6 @@ function SectionModal({ isOpen, onClose, onSave, section, parentId }) {
     );
 }
 
-// ==================== РЕКУРСИВНЫЙ УЗЕЛ (главное исправление) ====================
 function SectionTreeItem({ section, level = 0, isAdmin, onEdit, onDelete, onCreateSubsection, onCreateArticle, onSelect }) {
     const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -260,13 +259,6 @@ export default function SectionsPage() {
                     </span>
                 )}
             </div>
-
-            {/* Специальная карточка «+ Новая корневая» — только админу */}
-            {isAdmin && (
-                <div className="card add-root" onClick={handleCreateRoot}>
-                    + Новая корневая секция
-                </div>
-            )}
 
             {sections.length === 0 ? (
                 <div className="empty-card">

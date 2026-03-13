@@ -6,8 +6,8 @@ import CreateArticlePage from "./pages/CreateArticlePage";
 import EditArticlePage from "./pages/EditArticlePage";
 import TagsPage from "./pages/TagsPage";
 import SectionsPage from "./pages/SectionsPage";
+import VectorSearchPage from "./pages/VectorSearchPage";
 
-function VectorSearchPage() { return <div className="p-10">Векторный поиск — в разработке</div>; }
 function VisualizationPage() { return <div className="p-10">Визуализация — в разработке</div>; }
 
 export default function App() {
