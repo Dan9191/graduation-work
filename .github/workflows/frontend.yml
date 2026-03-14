@@ -50,9 +50,9 @@ jobs:
         run: |
           docker build \
           -f graduation-frontend/Dockerfile \
-          -t ghcr.io/${{ github.repository }}/frontend:${{ github.sha }} \
+          -t ghcr.io/${{ github.repository,, }}/frontend:${{ github.sha }} \
           .
 
       - name: Push Docker image
         run: |
-          docker push ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}
+          docker push ghcr.io/${{ github.repository,, }}/frontend:${{ github.sha }}
