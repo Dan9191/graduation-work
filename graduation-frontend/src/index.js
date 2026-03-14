@@ -8,7 +8,12 @@ import "./index.css";
 
 const start = async () => {
     await loadConfig();
-    await initKeycloak();
+
+    try {
+        await initKeycloak();
+    } catch (e) {
+        console.warn("Auth disabled");
+    }
 
     const root = ReactDOM.createRoot(document.getElementById("root"));
     root.render(

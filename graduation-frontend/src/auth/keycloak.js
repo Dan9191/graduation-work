@@ -3,7 +3,7 @@ import { getConfig } from "../config/config";
 
 let keycloak;
 
-export const initKeycloak = () => {
+export const initKeycloak = async () => {
     const kcConfig = getConfig().keycloak;
 
     keycloak = new Keycloak({
@@ -12,11 +12,18 @@ export const initKeycloak = () => {
         clientId: kcConfig.clientId
     });
 
-    return keycloak.init({
-        onLoad: "check-sso",
-        pkceMethod: "S256",
-        checkLoginIframe: false
-    });
+    try {
+        return await keycloak.init({
+            onLoad: "check-sso",
+            pkceMethod: "S256",
+            checkLoginIframe: false,
+            silentCheckSsoRedirectUri:
+            window.location.origin + "/silent-check-sso.html"
+        });
+    } catch (e) {
+        console.warn("Keycloak unavailable, continuing without auth");
+        return false;
+    }
 };
 
 export const getKeycloak = () => keycloak;
