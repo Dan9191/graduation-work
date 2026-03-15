@@ -51,11 +51,9 @@ jobs:
           echo "IMAGE_NAME=ghcr.io/${GITHUB_REPOSITORY,,}/frontend:${GITHUB_SHA}" >> $GITHUB_ENV
 
       - name: Build Docker image
+        working-directory: graduation-frontend
         run: |
-          docker build \
-            -t $IMAGE_NAME \
-            -f graduation-frontend/Dockerfile \
-            ./graduation-frontend
+          docker build -t $IMAGE_NAME .
 
       - name: Push Docker image
         run: |
