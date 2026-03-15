@@ -97,6 +97,9 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
       - name: Run tests
         run: ./gradlew :article:test
 
@@ -134,6 +137,9 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
       - name: Run tests
         run: ./gradlew :gateway:test
 
@@ -170,6 +176,9 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
 
       - name: Run tests
         run: ./gradlew :rag:test
