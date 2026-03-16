@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "ru.dan"
-version = "0.0.23-SNAPSHOT"
+version = "0.0.24-SNAPSHOT"
 description = "Demo project for Spring Boot"
 
 java {
