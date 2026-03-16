@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "ru.dan.graduation"
-version = "0.0.2-SNAPSHOT"
+version = "0.0.21-SNAPSHOT"
 description = "gateway"
 
 java {
