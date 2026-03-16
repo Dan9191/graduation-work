@@ -12,6 +12,10 @@
 
 
 ## RAG
+### Тест
+```shell
+./gradlew :rag:test
+```
 ### Сборка
 ```shell
 ./gradlew :rag:clean build
@@ -28,6 +32,11 @@
 - Сборка проекта с проверкой стиля: `./gradlew :rag:build`
 
 ## Article
+### Тест
+```shell
+./gradlew :article:test
+```
+
 ### Сборка
 ```shell
 ./gradlew :article:clean build

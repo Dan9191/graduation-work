@@ -5,22 +5,17 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class FlywayConfig(
-    private val articleProperties: ArticleProperties,
-) {
+class FlywayConfig {
     @Bean(initMethod = "migrate")
-    fun flyway(): Flyway {
-        val config =
-            Flyway
-                .configure()
-                .dataSource(
-                    "jdbc:postgresql://localhost:5432/rag",
-                    "rag_user",
-                    "rag_pass",
-                ).schemas("article_service")
-                .locations("classpath:db/migration")
-                .baselineOnMigrate(true)
-
-        return Flyway(config)
-    }
+    fun flyway(articleProperties: ArticleProperties): Flyway =
+        Flyway
+            .configure()
+            .dataSource(
+                articleProperties.flyway.dataSourceUrl,
+                articleProperties.flyway.user,
+                articleProperties.flyway.password,
+            ).schemas(articleProperties.flyway.schemas)
+            .locations(articleProperties.flyway.locations)
+            .baselineOnMigrate(articleProperties.flyway.baseLineOnMigrate)
+            .load()
 }

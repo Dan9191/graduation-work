@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "ru.dan"
-version = "0.0.21-SNAPSHOT"
+version = "0.0.22-SNAPSHOT"
 description = "Demo project for Spring Boot"
 
 java {
@@ -46,6 +46,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-flyway-test")
     testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.testcontainers:postgresql:1.21.4")
     testImplementation("org.testcontainers:junit-jupiter:1.21.4")
