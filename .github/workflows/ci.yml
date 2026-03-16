@@ -1,4 +1,4 @@
-name: CI
+name: CI Monorepo
 
 permissions:
   contents: read
@@ -6,209 +6,196 @@ permissions:
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
 
 env:
   REGISTRY: ghcr.io
 
 jobs:
-
   changes:
     runs-on: ubuntu-latest
-
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
-      article: ${{ steps.filter.outputs.article }}
-      gateway: ${{ steps.filter.outputs.gateway }}
-      rag: ${{ steps.filter.outputs.rag }}
-
+      article:  ${{ steps.filter.outputs.article }}
+      gateway:  ${{ steps.filter.outputs.gateway }}
+      rag:      ${{ steps.filter.outputs.rag }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Detect changed paths
-        uses: dorny/paths-filter@v3
+      - uses: actions/checkout@v5
+      - uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
             frontend:
               - 'graduation-frontend/**'
-            
             article:
               - 'article/**'
-            
             gateway:
               - 'gateway/**'
-            
             rag:
               - 'rag/**'
 
-  frontend:
+  # ────────────────────────────── Frontend ──────────────────────────────
+  test-frontend:
     needs: changes
     if: needs.changes.outputs.frontend == 'true'
-
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: graduation-frontend
-
     steps:
       - uses: actions/checkout@v5
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
           cache-dependency-path: graduation-frontend/package-lock.json
+      - run: npm ci
+      - run: npm test -- --watchAll=false
 
-      - name: Install dependencies
-        run: npm ci
+  build-frontend:
+    needs: [changes, test-frontend]
+    if: needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: graduation-frontend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm, cache-dependency-path: package-lock.json }
+      - run: npm ci
+      - run: npm run build
 
-      - name: Run tests
-        run: npm test -- --watchAll=false
-
-      - name: Build React app
-        run: npm run build
-
+  docker-frontend:
+    needs: [changes, build-frontend]
+    if: needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set image name
-        run: |
-          echo "IMAGE_NAME=ghcr.io/${GITHUB_REPOSITORY,,}/frontend:${GITHUB_SHA}" >> $GITHUB_ENV
-
-      - name: Build Docker image
+      - name: Build & push
         working-directory: graduation-frontend
         run: |
-          docker build -t $IMAGE_NAME .
+          IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}/frontend:${GITHUB_SHA}
+          docker build -t $IMAGE .
+          docker push $IMAGE
 
-      - name: Push Docker image
-        run: |
-          docker push $IMAGE_NAME
-    
-
-  article:
+  # ────────────────────────────── Article ──────────────────────────────
+  test-article:
     needs: changes
     if: needs.changes.outputs.article == 'true'
-
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v5
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - run: chmod +x gradlew
+      - run: ./gradlew :article:test
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 21
+  build-article:
+    needs: [changes, test-article]
+    if: needs.changes.outputs.article == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - run: chmod +x gradlew
+      - run: ./gradlew :article:build
 
-      - name: Make gradlew executable
-        run: chmod +x gradlew
-
-      - name: Run tests
-        run: ./gradlew :article:test
-
-      - name: Login to GHCR
+  docker-article:
+    needs: [changes, build-article]
+    if: needs.changes.outputs.article == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Login GHCR
         uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push Docker image
+        with: { registry: ghcr.io, username: ${{ github.actor }}, password: ${{ secrets.GITHUB_TOKEN }} }
+      - name: Build & push
         run: |
           IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}/article:${GITHUB_SHA}
-            
-          docker build \
-            -t $IMAGE \
-            -f article/Dockerfile \
-            .
-            
+          docker build -t $IMAGE -f article/Dockerfile .
           docker push $IMAGE
-    
 
-  gateway:
-    needs: changes
-    if: needs.changes.outputs.gateway == 'true'
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 21
-
-      - name: Make gradlew executable
-        run: chmod +x gradlew
-
-      - name: Run tests
-        run: ./gradlew :gateway:test
-
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push Docker image
-        run: |
-          IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}/gateway:${GITHUB_SHA}
-            
-          docker build \
-            -t $IMAGE \
-            -f gateway/Dockerfile \
-            .
-            
-          docker push $IMAGE
-    
-
-  rag:
+  # ────────────────────────────── Rag ──────────────────────────────
+  test-rag:
     needs: changes
     if: needs.changes.outputs.rag == 'true'
-
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v5
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - run: chmod +x gradlew
+      - run: ./gradlew :rag:test
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 21
+  build-rag:
+    needs: [changes, test-rag]
+    if: needs.changes.outputs.rag == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - run: chmod +x gradlew
+      - run: ./gradlew :rag:build
 
-      - name: Make gradlew executable
-        run: chmod +x gradlew
-
-      - name: Run tests
-        run: ./gradlew :rag:test
-
-      - name: Login to GHCR
+  docker-rag:
+    needs: [changes, build-rag]
+    if: needs.changes.outputs.rag == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Login GHCR
         uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push Docker image
+        with: { registry: ghcr.io, username: ${{ github.actor }}, password: ${{ secrets.GITHUB_TOKEN }} }
+      - name: Build & push
         run: |
           IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}/rag:${GITHUB_SHA}
-            
-          docker build \
-            -t $IMAGE \
-            -f rag/Dockerfile \
-            .
-            
+          docker build -t $IMAGE -f rag/Dockerfile .
+          docker push $IMAGE
+
+  # ────────────────────────────── Gateway ──────────────────────────────
+  test-gateway:
+    needs: changes
+    if: needs.changes.outputs.gateway == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - run: chmod +x gradlew
+      - run: ./gradlew :gateway:test
+
+  build-gateway:
+    needs: [changes, test-gateway]
+    if: needs.changes.outputs.gateway == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - run: chmod +x gradlew
+      - run: ./gradlew :gateway:build
+
+  docker-gateway:
+    needs: [changes, build-gateway]
+    if: needs.changes.outputs.gateway == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Login GHCR
+        uses: docker/login-action@v3
+        with: { registry: ghcr.io, username: ${{ github.actor }}, password: ${{ secrets.GITHUB_TOKEN }} }
+      - name: Build & push
+        run: |
+          IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}/gateway:${GITHUB_SHA}
+          docker build -t $IMAGE -f gateway/Dockerfile .
           docker push $IMAGE
