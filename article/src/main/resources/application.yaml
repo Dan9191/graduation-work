@@ -1,9 +1,9 @@
 server:
-  port: 8057
+  port: ${SERVER_PORT:8057}
 
 spring:
   application:
-    name: article
+    name: ${SPRING_APPLICATION_NAME:article}
   security:
     oauth2:
       resource-server:
@@ -28,8 +28,8 @@ app:
       data-source-url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/rag}
       user: ${DATASOURCE_NAME:rag_user}
       password: ${DATASOURCE_PASSWORD:rag_pass}
-      schemas: article_service
-      locations: classpath:db/migration
+      schemas: ${DATASOURCE_SCHEMAS:article_service}
+      locations: ${FLYWAY_LOCATIONS:classpath:db/migration}
     rabbit:
       exchange: "article.exchange"
       routing-key: "article.outbox"
