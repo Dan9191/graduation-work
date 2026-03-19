@@ -50,6 +50,21 @@ class SecurityConfig {
                     .hasAuthority("ROLE_graduation.admin")
                     .pathMatchers(HttpMethod.POST, "/api/v1/articles/**")
                     .hasAuthority("ROLE_graduation.admin")
+                    // Other
+                    .pathMatchers("/actuator/**")
+                    .permitAll()
+                    .pathMatchers(
+                        "/api/swagger-ui.html",
+                        "/api/swagger-ui/**",
+                        "/api/v3/api-docs",
+                        "/api/v3/api-docs/**",
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/v3/api-docs",
+                        "/v3/api-docs/**",
+                        "/api/webjars/**",
+                        "/webjars/**",
+                    ).permitAll()
                     .anyExchange()
                     .authenticated()
             }.oauth2ResourceServer { oauth ->
