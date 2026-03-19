@@ -44,9 +44,14 @@ app:
 management:
   endpoint:
     health:
+      show-details: always
       group:
         readiness:
           include: readinessState
+  endpoints:
+    web:
+      exposure:
+        include: health,info,flyway
 
 logging:
   pattern:
