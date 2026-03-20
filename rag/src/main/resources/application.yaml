@@ -18,9 +18,9 @@ spring:
 app:
   rag:
     rabbit:
-      exchange: "article.exchange"
-      routing-key: "article.outbox"
-      queue: "article.outbox.queue"
+      exchange: ${RABBIT_EXCHANGE:article.exchange}
+      routing-key: ${RABBIT_ROUTING_KEY:article.outbox}
+      queue: ${RABBIT_QUEUE:article.outbox.queue}
     gigachat:
       embedding-model: ${EMBEDDING_MODEL:EmbeddingsGigaR}
       embedding-url: ${EMBEDDING_URL:https://gigachat.devices.sberbank.ru/api/v1/embeddings}
