@@ -51,13 +51,10 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,flyway,readiness,liveness
+        include: health,info,flyway,readiness,liveness,prometheus
 
 logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger - %msg%n"
   level:
     root: INFO
-#    org.springframework.data.r2dbc: DEBUG
-#    io.r2dbc.postgresql.QUERY: DEBUG
-#    io.r2dbc.postgresql.PARAM: TRACE

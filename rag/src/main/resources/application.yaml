@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: rag
+    name: ${SPRING_APPLICATION_NAME:rag}
   security:
     oauth2:
       resource-server:
@@ -35,3 +35,15 @@ springdoc:
     path: /api/v3/api-docs
   swagger-ui:
     path: /api/swagger-ui.html
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus,readiness,liveness
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: "mos-backend-service"

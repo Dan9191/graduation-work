@@ -1,27 +1,36 @@
 server:
-  port: 8033
+  port: ${SERVER_PORT:8033}
+
+gateway:
+  routes:
+    article:
+      path: ${ARTICLE_PATH:/knowledge/**}
+      strip-prefix: ${ARTICLE_STRIP_PREFIX:1}
+    rag:
+      path: ${RAG_PATH:/embedding/**}
+      strip-prefix: ${RAG_STRIP_PREFIX:1}
 
 spring:
   application:
-    name: gateway
+    name: ${SPRING_APPLICATION_NAME:gateway}
   cloud:
     gateway:
       server:
         webflux:
           routes:
-            - id: article
-              uri: http://localhost:8057
+            - id: ${ARTICLE_SERVICE_ID:article}
+              uri: ${ARTICLE_SERVICE_URI:http://localhost:8057}
               predicates:
-                - Path=/knowledge/**
+                - Path=${gateway.routes.article.path}
               filters:
-                - StripPrefix=1
+                - StripPrefix=${gateway.routes.article.strip-prefix}
 
-            - id: rag
-              uri: http://localhost:8094
+            - id: ${RAG_SERVICE_ID:rag}
+              uri: ${RAG_SERVICE_URI:http://localhost:8094}
               predicates:
-                - Path=/embedding/**
+                - Path=${gateway.routes.rag.path}
               filters:
-                - StripPrefix=1
+                - StripPrefix=${gateway.routes.rag.strip-prefix}
 
           default-filters:
             - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
@@ -32,4 +41,16 @@ spring:
                 allowedOrigins: "*"
                 allowedMethods: "*"
                 allowedHeaders: "*"
+
+management:
+  endpoint:
+    health:
+      show-details: always
+      group:
+        readiness:
+          include: readinessState
+  endpoints:
+    web:
+      exposure:
+        include: health,info,flyway,readiness,liveness,prometheus
 

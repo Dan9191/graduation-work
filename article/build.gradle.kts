@@ -31,6 +31,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("com.fasterxml.uuid:java-uuid-generator:4.1.1")
@@ -42,6 +43,7 @@ dependencies {
     implementation("org.postgresql:postgresql")
     implementation("org.postgresql:r2dbc-postgresql")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
