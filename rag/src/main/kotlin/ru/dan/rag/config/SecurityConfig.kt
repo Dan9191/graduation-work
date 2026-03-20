@@ -18,10 +18,7 @@ class SecurityConfig {
             .cors { cors ->
                 cors.configurationSource {
                     val config = CorsConfiguration()
-                    config.allowedOrigins =
-                        listOf(
-                            "http://localhost:3000",
-                        )
+                    config.allowedOrigins = listOf("*")
                     config.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                     config.allowedHeaders =
                         listOf(
