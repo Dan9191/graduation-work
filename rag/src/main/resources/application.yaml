@@ -10,25 +10,32 @@ spring:
         jwt:
           issuer-uri: ${KEYCLOAK:http://localhost:9090/realms/graduation}
   datasource:
-    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/rag?currentSchema=rag1}
+    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/rag?currentSchema=rag}
     username: ${DATASOURCE_NAME:rag_user}
     password: ${DATASOURCE_PASSWORD:rag_pass}
     driver-class-name: org.postgresql.Driver
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    virtual-host: ${RABBITMQ_VIRTUAL_HOST:/}
+    connection-timeout: ${RABBITMQ_CON_TIMEOUT:5000}
 
 app:
   rag:
     rabbit:
-      exchange: ${RABBIT_EXCHANGE:article.exchange}
-      routing-key: ${RABBIT_ROUTING_KEY:article.outbox}
-      queue: ${RABBIT_QUEUE:article.outbox.queue}
+      exchange: ${RABBITMQ_EXCHANGE:article.exchange}
+      routing-key: ${RABBITMQ_ROUTING_KEY:article.outbox}
+      queue: ${RABBITMQ_QUEUE:article.outbox.queue}
     gigachat:
       embedding-model: ${EMBEDDING_MODEL:EmbeddingsGigaR}
       embedding-url: ${EMBEDDING_URL:https://gigachat.devices.sberbank.ru/api/v1/embeddings}
-      secret-token: ${SECRET_TOKEN:}
-      token-url: ${TOKEN_URL:https://ngw.devices.sberbank.ru:9443/api/v2/oauth}
+      secret-token: ${MODELS_SECRET_TOKEN:}
+      token-url: ${MODELS_TOKEN_URL:https://ngw.devices.sberbank.ru:9443/api/v2/oauth}
       llm-url: ${LLM_URL:https://gigachat.devices.sberbank.ru/api/v1/chat/completions}
       llm-model: ${LLM_MODEL:GigaChat-2-Max}
-    min-similarity: ${MIN_SIMILARITY:0.50}
+    min-similarity: ${EMBEDDING_MIN_SIMILARITY:0.50}
 
 springdoc:
   api-docs:
@@ -46,4 +53,4 @@ management:
       show-details: always
   metrics:
     tags:
-      application: "mos-backend-service"
+      application: "graduation-rag-service"
