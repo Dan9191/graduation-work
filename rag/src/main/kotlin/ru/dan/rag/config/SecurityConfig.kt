@@ -57,6 +57,8 @@ class SecurityConfig {
                     ).permitAll()
                     .requestMatchers("/ws/**")
                     .permitAll()
+                    .requestMatchers(HttpMethod.OPTIONS, "/**")
+                    .permitAll()
                     .anyRequest()
                     .authenticated()
             }.oauth2ResourceServer {
