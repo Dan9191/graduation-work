@@ -39,3 +39,4 @@ out/
 rag/src/main/resources/application-dev.yaml
 /graduation-frontend/node_modules/
 /docs-project/node_modules/
+/docs-project/docs/.vitepress/dist/

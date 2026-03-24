@@ -8,3 +8,6 @@
 ### `npm init -y`
 ### `npm install vitepress --save-dev`
 ### `npm run docs:dev`
+
+### 3. Проверка сборки
+### `npm run docs:build -- --debug`

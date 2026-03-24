@@ -14,7 +14,7 @@
 |--------------------------|--------------------------------------------------------|-------------------|
 | SERVER_PORT              | 8094                                                   | Порт сервиса      |
 | SPRING_APPLICATION_NAME  | rag                                                    | Имя сервиса       |
-| KEYCLOAK                 | http://localhost:9090/realms/graduation                | JWT issuer        |
+| KEYCLOAK                 | `http://localhost:9090/realms/graduation`              | JWT issuer        |
 | DATASOURCE_URL           | jdbc:postgresql://localhost:5432/rag                   | База данных       |
 | DATASOURCE_NAME          | rag_user                                               | Пользователь БД   |
 | DATASOURCE_PASSWORD      | rag_pass                                               | Пароль БД         |
