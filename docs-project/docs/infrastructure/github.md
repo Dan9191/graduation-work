@@ -1,7 +1,7 @@
 # Monorepository
 
 Основной репозиторий проекта: [https://github.com/Dan9191/graduation-work](https://github.com/Dan9191/graduation-work)
-
+![actions](./images/actions.png)
 ## Структура
 
 Monorepo содержит:
