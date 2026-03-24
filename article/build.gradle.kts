@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "ru.dan.graduation"
-version = "0.0.24-SNAPSHOT"
+version = "0.0.25-SNAPSHOT"
 description = "article"
 
 java {

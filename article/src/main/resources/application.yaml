@@ -61,3 +61,9 @@ logging:
     console: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger - %msg%n"
   level:
     root: INFO
+
+springdoc:
+  api-docs:
+    path: /api/v3/api-docs
+  swagger-ui:
+    path: /api/swagger-ui.html

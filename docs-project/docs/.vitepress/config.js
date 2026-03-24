@@ -1,5 +1,5 @@
 export default {
-    title: 'Documentation',
+    title: 'Документация',
     description: 'Документация выпускного проекта',
 
     themeConfig: {
@@ -38,18 +38,31 @@ export default {
                 {
                     text: 'Архитектура приложения',
                     items: [
-                        { text: 'Введение', link: '/guide/' }
+                        { text: 'Подход к работе с ИИ моделями', link: '/architecture/models' },
+                        { text: 'Обзор системы', link: '/architecture/system' }
                     ]
                 }
             ],
 
-            '/api/': [
+            '/infrastructure/': [
                 {
-                    text: 'API',
+                    text: 'Инфраструктура',
                     items: [
-                        { text: 'Обзор', link: '/api/' },
-                        { text: 'Endpoints', link: '/api/endpoints' },
-                        { text: 'Auth', link: '/api/auth' }
+                        { text: 'Монорепозиторий проекта', link: '/infrastructure/github' },
+                        { text: 'Инфраструктурный репозиторий', link: '/infrastructure/argo-cd' },
+                        { text: 'Наблюдаемость', link: '/infrastructure/observability' }
+                    ]
+                }
+            ],
+
+            '/services/': [
+                {
+                    text: 'Сервисы',
+                    items: [
+                        { text: 'Frontend', link: '/services/frontend' },
+                        { text: 'Article service', link: '/services/article' },
+                        { text: 'RAG service', link: '/services/rag' },
+                        { text: 'Gateway', link: '/services/Gateway' }
                     ]
                 }
             ]
