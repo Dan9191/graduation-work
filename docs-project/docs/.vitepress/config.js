@@ -62,7 +62,7 @@ export default {
                         { text: 'Frontend', link: '/services/frontend' },
                         { text: 'Article service', link: '/services/article' },
                         { text: 'RAG service', link: '/services/rag' },
-                        { text: 'Gateway', link: '/services/Gateway' }
+                        { text: 'Gateway', link: '/services/gateway' }
                     ]
                 }
             ]
