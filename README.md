@@ -10,8 +10,8 @@
 ./gradlew :gateway:bootRun
 ```
 
-
 ## RAG
+Сервис, для векторизации статей и формирования ответа.
 ### Тест
 ```shell
 ./gradlew :rag:test
@@ -25,13 +25,20 @@
 ```shell
 ./gradlew :rag:bootRun
 ```
-**Код-стайл:**
+
+### Запуск проверки стиля
 - Для форматирования кода и проверки стиля используется [ktlint](https://ktlint.github.io/)
-- Запуск проверки стиля: `./gradlew :rag:ktlintCheck`
-- Автоматическое форматирование: `./gradlew :rag:ktlintFormat`
-- Сборка проекта с проверкой стиля: `./gradlew :rag:build`
+```shell
+./gradlew :rag:ktlintCheck
+```
+
+### Автоматическое форматирование
+```shell
+./gradlew :rag:ktlintFormat
+```
 
 ## Article
+Сервис, для хранения статей.
 ### Тест
 ```shell
 ./gradlew :article:test
@@ -46,8 +53,14 @@
 ```shell
 ./gradlew :article:bootRun
 ```
-**Код-стайл:**
+
+### Запуск проверки стиля
 - Для форматирования кода и проверки стиля используется [ktlint](https://ktlint.github.io/)
-- Запуск проверки стиля: `./gradlew :article:ktlintCheck`
-- Автоматическое форматирование: `./gradlew :article:ktlintFormat`
-- Сборка проекта с проверкой стиля: `./gradlew :article:build`
+```shell
+./gradlew :article:ktlintCheck
+```
+
+### Автоматическое форматирование
+```shell
+./gradlew :article:ktlintFormat
+```
