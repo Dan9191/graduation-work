@@ -53,6 +53,14 @@
 ./gradlew :article:bootRun
 ./gradlew :rag:bootRun
 ./gradlew :gateway:bootRun
+
+# Проверка стиля (ktlint)
+./gradlew :article:ktlintCheck
+./gradlew :rag:ktlintCheck
+
+# Автоформатирование (ktlint)
+./gradlew :article:ktlintFormat
+./gradlew :rag:ktlintFormat
 ```
 
 ### Frontend

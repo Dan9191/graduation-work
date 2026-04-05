@@ -82,7 +82,25 @@ class ArticleService(
             }
 
     @Transactional
-    fun deleteArticle(id: UUID): Mono<Void> = articleRepository.deleteById(id)
+    fun deleteArticle(id: UUID): Mono<Void> =
+        articleRepository
+            .findById(id)
+            .switchIfEmpty(Mono.error(ResponseStatusException(HttpStatus.NOT_FOUND, "Article not found")))
+            .flatMap { article ->
+                val outbox =
+                    ArticleOutbox(
+                        id = uuidGenerator.generateUUID(),
+                        articleId = id,
+                        articleName = article.title,
+                        eventType = "DELETED",
+                        body = "",
+                        source = article.source,
+                        status = "PENDING",
+                        attemptCount = 0,
+                        createdAt = Instant.now(),
+                    )
+                outboxRepository.insert(outbox)
+            }.then(articleRepository.deleteById(id))
 
     @Transactional
     fun createArticle(dto: CreateArticleDto): Mono<ArticleViewDto> {

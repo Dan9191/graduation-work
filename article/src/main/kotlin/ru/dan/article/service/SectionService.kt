@@ -188,7 +188,7 @@ class SectionService(
                         }
                     }
             }.flatMap { updatedSection ->
-                logger.debug("Секция успешно обновлена: {}", updatedSection)
+                logger.debug("Section updated successfully: {}", updatedSection)
                 if (updatedSection.parentId != null) {
                     sectionRepository
                         .findById(updatedSection.parentId)

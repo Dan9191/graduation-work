@@ -24,9 +24,18 @@ class ArticleMessageListener(
         try {
             val articleMessage = objectMapper.readValue(message, ArticleMessage::class.java)
             logger.info { "Processing article id=${articleMessage.articleId}, event=${articleMessage.eventType}" }
-            val resultId = articleProcessingService.processArticle(articleMessage)
-            val duration = System.currentTimeMillis() - startTime
-            logger.info { "Article processed successfully, result=$resultId, took ${duration}ms" }
+            when (articleMessage.eventType) {
+                "DELETED" -> {
+                    articleProcessingService.deleteArticle(articleMessage)
+                    val duration = System.currentTimeMillis() - startTime
+                    logger.info { "Article deleted successfully, id=${articleMessage.articleId}, took ${duration}ms" }
+                }
+                else -> {
+                    val resultId = articleProcessingService.processArticle(articleMessage)
+                    val duration = System.currentTimeMillis() - startTime
+                    logger.info { "Article processed successfully, result=$resultId, took ${duration}ms" }
+                }
+            }
         } catch (e: Exception) {
             val duration = System.currentTimeMillis() - startTime
             logger.error(e) { "Failed to process message after ${duration}ms" }

@@ -11,4 +11,6 @@ interface ArticleRepository :
     CrudRepository<Article, UUID>,
     ArticleJdbcRepository {
     fun findByExternalArticleId(externalArticleId: String): Article?
+
+    fun deleteByExternalArticleId(externalArticleId: String)
 }

@@ -17,7 +17,7 @@ class SearchService(
     private val log = LoggerFactory.getLogger(SearchService::class.java)
 
     fun search(request: SearchRequest): SearchResponse {
-        log.info("Поиск по запросу: ${request.query}")
+        log.info("Search query: ${request.query}")
         val queryEmbedding = chunkEmbeddingService.fetchEmbedding(request.query)
 
         val results = findSimilarChunks(queryEmbedding, limit = 5, minSimilarity = ragPropertiesConfig.minSimilarity)

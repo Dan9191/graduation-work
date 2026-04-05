@@ -6,7 +6,7 @@ import com.vladsch.flexmark.parser.Parser
 import dev.langchain4j.data.document.Document
 import dev.langchain4j.data.document.splitter.DocumentSplitters
 import dev.langchain4j.data.segment.TextSegment
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import ru.dan.rag.config.RagPropertiesConfig
@@ -17,6 +17,8 @@ import ru.dan.rag.repository.ArticleChunkRepository
 import ru.dan.rag.repository.ArticleRepository
 import java.time.OffsetDateTime
 import java.util.UUID
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * Сервис первичного приема статей в формате Markdown.
@@ -29,8 +31,6 @@ class ArticleProcessingService(
     private val objectMapper: ObjectMapper,
     private val ragPropertiesConfig: RagPropertiesConfig,
 ) {
-    private val log = LoggerFactory.getLogger(ArticleProcessingService::class.java)
-
     @Transactional
     fun processArticle(articleMessage: ArticleMessage): UUID {
         val article = createOrGetArticle(articleMessage)
@@ -51,6 +51,18 @@ class ArticleProcessingService(
         return article.id
     }
 
+    @Transactional
+    fun deleteArticle(articleMessage: ArticleMessage) {
+        val externalId = articleMessage.articleId.toString()
+        val existing = articleRepository.findByExternalArticleId(externalId)
+        if (existing != null) {
+            articleRepository.deleteByExternalArticleId(externalId)
+            logger.info("Article deleted from RAG: externalArticleId=$externalId")
+        } else {
+            logger.warn("Article not found in RAG during deletion: externalArticleId=$externalId")
+        }
+    }
+
     /**
      * Создаем или получаем статью.
      */
@@ -59,7 +71,7 @@ class ArticleProcessingService(
         val newArticle: Article
 
         if (existingArticle != null) {
-            log.info("Статья уже существует, обновляем: id=${existingArticle.id}")
+            logger.info("Article already exists, updating: id=${existingArticle.id}")
             newArticle =
                 existingArticle.copy(
                     title = articleMessage.articleName,
