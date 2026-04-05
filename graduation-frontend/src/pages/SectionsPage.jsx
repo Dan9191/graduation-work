@@ -246,8 +246,8 @@ export default function SectionsPage() {
         navigate(`/articles?sectionId=${sectionId}`);
     };
 
-    if (loading) return <div className="loading">Загрузка...</div>;
-    if (error) return <div className="error">{error}</div>;
+    if (loading) return <div className="flex items-center justify-center py-24 text-slate-400 text-sm">Загрузка...</div>;
+    if (error) return <div className="flex items-center justify-center py-24 text-red-500 text-sm">{error}</div>;
 
     return (
         <div className="container">

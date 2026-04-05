@@ -12,7 +12,7 @@ function VisualizationPage() { return <div className="p-10">Визуализац
 
 export default function App() {
     return (
-        <div className="min-h-screen bg-[#fafafa]">
+        <div className="min-h-screen" style={{ background: "var(--bg)" }}>
             <Navigation />
 
             <Routes>

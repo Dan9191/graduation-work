@@ -12,8 +12,7 @@ export default function ArticlePage() {
     const [error, setError] = useState(null);
 
     const keycloak = getKeycloak();
-    const isAdmin = keycloak?.authenticated &&
-        keycloak.hasRealmRole?.('graduation.admin');
+    const isAdmin = keycloak?.authenticated && keycloak.hasRealmRole?.('graduation.admin');
 
     useEffect(() => {
         const fetchArticle = async () => {
@@ -23,90 +22,129 @@ export default function ArticlePage() {
                 setArticle(res.data);
             } catch (err) {
                 setError("Не удалось загрузить статью");
-                console.error(err);
             } finally {
                 setLoading(false);
             }
         };
-
         fetchArticle();
     }, [id]);
 
     const handleDelete = async () => {
-        if (!window.confirm('Вы уверены, что хотите удалить эту статью?')) {
-            return;
-        }
-
+        if (!window.confirm('Вы уверены, что хотите удалить эту статью?')) return;
         try {
-            const api = getApi();
-            await api.delete(`/knowledge/api/v1/articles/${id}`);
+            await getApi().delete(`/knowledge/api/v1/articles/${id}`);
             navigate('/articles');
         } catch (err) {
             alert('Не удалось удалить статью');
-            console.error(err);
         }
     };
 
-    if (loading) return <div className="p-10 text-center">Загрузка...</div>;
-    if (error) return <div className="p-10 text-red-600">{error}</div>;
-    if (!article) return <div className="p-10">Статья не найдена</div>;
+    if (loading) return (
+        <div className="flex items-center justify-center py-24 gap-2"
+            style={{ fontFamily: "var(--mono)", color: "var(--accent)", fontSize: "0.85rem" }}>
+            <span>&gt;</span>
+            <span>loading article</span>
+            <span className="loading-dots"><span>.</span><span>.</span><span>.</span></span>
+        </div>
+    );
+
+    if (error) return (
+        <div className="flex items-center justify-center py-24 text-sm"
+            style={{ fontFamily: "var(--mono)", color: "#ef4444" }}>
+            ERR: {error}
+        </div>
+    );
+
+    if (!article) return (
+        <div className="flex items-center justify-center py-24 text-sm"
+            style={{ fontFamily: "var(--mono)", color: "var(--muted)" }}>
+            &gt; 404: article not found
+        </div>
+    );
 
     return (
-        <div className="container mx-auto px-8 py-10 max-w-4xl">
-            {/* Админская панель */}
+        <div className="max-w-4xl mx-auto px-6 py-10">
+            {/* Хлебная крошка */}
+            <div className="flex items-center gap-2 mb-6 text-xs"
+                style={{ fontFamily: "var(--mono)", color: "var(--muted)" }}>
+                <Link to="/articles" className="hover:underline" style={{ color: "var(--accent)", textDecoration: "none" }}>
+                    ~/articles
+                </Link>
+                <span>/</span>
+                <span className="text-slate-600 truncate max-w-xs">{article.title}</span>
+            </div>
+
+            {/* Заголовок */}
+            <h1 className="text-3xl font-bold leading-tight mb-5" style={{ color: "var(--text)", letterSpacing: "-0.02em" }}>
+                {article.title}
+            </h1>
+
+            {/* Метаданные */}
+            <div className="flex flex-wrap items-center gap-2 mb-6 pb-5 border-b border-slate-200">
+                {article.section && (
+                    <Link
+                        to={`/articles?sectionId=${article.section.id}`}
+                        className="bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded text-xs font-medium transition"
+                        style={{ fontFamily: "var(--mono)", color: "var(--text)", textDecoration: "none" }}
+                    >
+                        §{article.section.name}
+                    </Link>
+                )}
+
+                {article.tags?.map(tag => (
+                    <Link
+                        key={tag.id}
+                        to={`/articles?tagId=${tag.id}`}
+                        className="px-3 py-1 rounded text-xs font-medium transition"
+                        style={{
+                            fontFamily: "var(--mono)",
+                            background: "var(--accent-dim)",
+                            color: "var(--accent)",
+                            border: "1px solid var(--border-hover)",
+                            textDecoration: "none",
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.background = "var(--accent-glow)"}
+                        onMouseLeave={e => e.currentTarget.style.background = "var(--accent-dim)"}
+                    >
+                        #{tag.name}
+                    </Link>
+                ))}
+
+                <div className="ml-auto flex items-center gap-4 text-xs"
+                    style={{ fontFamily: "var(--mono)", color: "var(--muted)" }}>
+                    <span>views:{article.viewCount || 0}</span>
+                    <span>{new Date(article.createdAt).toLocaleDateString('ru-RU')}</span>
+                </div>
+            </div>
+
+            {/* Админ-панель */}
             {isAdmin && (
-                <div className="flex gap-3 mb-8 pb-6 border-b-2 border-black">
+                <div className="flex gap-3 mb-8 p-4 rounded-xl border"
+                    style={{ background: "#fffbeb", borderColor: "#fde68a" }}>
+                    <span className="text-xs self-center mr-2"
+                        style={{ fontFamily: "var(--mono)", color: "#92400e" }}>
+                        [admin]
+                    </span>
                     <Link
                         to={`/articles/${id}/edit`}
-                        className="border-2 border-black px-4 py-2 hover:bg-black hover:text-white transition"
+                        className="text-xs font-medium px-4 py-2 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 transition"
+                        style={{ fontFamily: "var(--mono)", textDecoration: "none" }}
                     >
-                        ✎ Редактировать
+                        edit
                     </Link>
                     <button
                         onClick={handleDelete}
-                        className="border-2 border-black px-4 py-2 hover:bg-black hover:text-white transition"
+                        className="text-xs font-medium px-4 py-2 rounded-lg bg-white border hover:bg-red-50 transition"
+                        style={{ fontFamily: "var(--mono)", borderColor: "#fca5a5", color: "#991b1b" }}
                     >
-                        × Удалить
+                        delete
                     </button>
                 </div>
             )}
 
-            {/* Метаданные */}
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-4">{article.title}</h1>
-
-                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 border-b-2 border-black pb-4">
-                    {article.section && (
-                        <Link
-                            to={`/articles?sectionId=${article.section.id}`}
-                            className="border-2 border-black px-2 py-1 hover:bg-black hover:text-white transition"
-                        >
-                            {article.section.name}
-                        </Link>
-                    )}
-
-                    <div className="flex gap-2">
-                        {article.tags?.map(tag => (
-                            <Link
-                                key={tag.id}
-                                to={`/articles?tagId=${tag.id}`}
-                                className="border border-black px-2 py-1 text-xs hover:bg-black hover:text-white transition"
-                            >
-                                #{tag.name}
-                            </Link>
-                        ))}
-                    </div>
-
-                    <div className="ml-auto flex gap-4">
-                        <span>👁 {article.viewCount || 0}</span>
-                        <span> {new Date(article.createdAt).toLocaleDateString('ru-RU')}</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Основное содержание */}
+            {/* Изображение */}
             {article.mainPicture && (
-                <div className="mb-8 border-2 border-black p-1">
+                <div className="mb-8 rounded-xl overflow-hidden border border-slate-200">
                     <img
                         src={article.mainPicture}
                         alt={article.title}
@@ -119,21 +157,26 @@ export default function ArticlePage() {
                 </div>
             )}
 
+            {/* Описание */}
             {article.description && (
-                <div className="mb-8 p-4 border-2 border-black bg-gray-50">
-                    <p className="text-gray-700 italic">{article.description}</p>
-                </div>
-            )}
-            {article.source && (
-                <div className="mb-8 p-4 border-2 border-black bg-gray-50">
-                    <p className="text-gray-700 italic">Источник : {article.source}</p>
+                <div className="mb-6 p-4 rounded-xl border-l-4 bg-slate-50 border border-slate-200 text-slate-600 italic text-sm leading-relaxed"
+                    style={{ borderLeftColor: "var(--accent)" }}>
+                    {article.description}
                 </div>
             )}
 
-            <div className="article-body prose prose-lg max-w-none border-t-2 border-black pt-8">
-                <ReactMarkdown>
-                    {article.body || "*Текст статьи отсутствует*"}
-                </ReactMarkdown>
+            {/* Источник */}
+            {article.source && (
+                <div className="mb-6 p-3 rounded-lg border border-slate-200 bg-slate-50 text-sm"
+                    style={{ fontFamily: "var(--mono)" }}>
+                    <span style={{ color: "var(--muted)" }}>source: </span>
+                    <span className="text-slate-700">{article.source}</span>
+                </div>
+            )}
+
+            {/* Тело статьи */}
+            <div className="article-body prose prose-slate prose-base max-w-none">
+                <ReactMarkdown>{article.body || "*Текст статьи отсутствует*"}</ReactMarkdown>
             </div>
         </div>
     );

@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getApi } from "../api/api";
 
-// Функция для преобразования дерева секций в плоский список с путями
 const flattenSections = (sections, parentPath = '') => {
     let result = [];
 
@@ -22,6 +21,18 @@ const flattenSections = (sections, parentPath = '') => {
 
     return result;
 };
+
+const FieldBlock = ({ label, required, children }) => (
+    <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+        <label className="block mb-2 text-xs font-semibold" style={{ fontFamily: "var(--mono)", color: "var(--muted)" }}>
+            <span style={{ color: "var(--accent)" }}>&gt;</span> {label.toLowerCase().replace(/ /g, "_")}
+            {required && <span className="ml-1" style={{ color: "#ef4444" }}>*</span>}
+        </label>
+        {children}
+    </div>
+);
+
+const inputClass = "w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm bg-white text-slate-900 focus:outline-none transition";
 
 export default function CreateArticlePage() {
     const navigate = useNavigate();
@@ -53,10 +64,7 @@ export default function CreateArticlePage() {
                     api.get('/knowledge/api/v1/tags')
                 ]);
 
-                const sectionsTree = sectionsRes.data || [];
-                const flattened = flattenSections(sectionsTree);
-                setFlatSections(flattened);
-
+                setFlatSections(flattenSections(sectionsRes.data || []));
                 setAvailableTags(tagsRes.data || []);
             } catch (err) {
                 console.error(err);
@@ -101,67 +109,72 @@ export default function CreateArticlePage() {
     };
 
     if (loading) {
-        return <div className="p-10 text-center">Загрузка...</div>;
+        return <div className="flex items-center justify-center py-24 text-slate-400 text-sm">Загрузка...</div>;
     }
 
     return (
-        <div className="container mx-auto px-8 py-10 max-w-4xl">
-            <h1 className="text-2xl font-bold mb-6">Создание новой статьи</h1>
+        <div className="max-w-3xl mx-auto px-6 py-10">
+            <div className="flex items-center gap-2 text-sm text-slate-400 mb-6">
+                <button onClick={() => navigate('/articles')} className="hover:text-indigo-600 transition">Статьи</button>
+                <span>/</span>
+                <span className="text-slate-600">Новая статья</span>
+            </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="border-2 border-black p-4">
-                    <label className="block mb-2 font-medium">Заголовок *</label>
+            <h1 className="text-2xl font-bold text-slate-900 mb-8">Создание статьи</h1>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <FieldBlock label="Заголовок" required>
                     <input
                         type="text"
                         name="title"
                         value={formData.title}
                         onChange={handleChange}
                         required
-                        className="w-full border-2 border-black p-2 bg-white focus:outline-none focus:bg-gray-50"
+                        className={inputClass}
+                        placeholder="Название статьи"
                     />
-                </div>
+                </FieldBlock>
 
-                <div className="border-2 border-black p-4">
-                    <label className="block mb-2 font-medium">Краткое описание</label>
+                <FieldBlock label="Краткое описание">
                     <textarea
                         name="description"
                         value={formData.description}
                         onChange={handleChange}
                         rows="3"
-                        className="w-full border-2 border-black p-2 bg-white focus:outline-none focus:bg-gray-50"
+                        className={inputClass}
+                        placeholder="Краткое описание статьи..."
                     />
-                </div>
+                </FieldBlock>
 
-                <div className="border-2 border-black p-4">
-                    <label className="block mb-2 font-medium">URL изображения</label>
+                <FieldBlock label="URL изображения">
                     <input
                         type="url"
                         name="mainPicture"
                         value={formData.mainPicture}
                         onChange={handleChange}
-                        className="w-full border-2 border-black p-2 bg-white focus:outline-none focus:bg-gray-50"
+                        className={inputClass}
+                        placeholder="https://..."
                     />
-                </div>
+                </FieldBlock>
 
-                <div className="border-2 border-black p-4">
-                    <label className="block mb-2 font-medium">Источник</label>
+                <FieldBlock label="Источник">
                     <input
                         type="text"
                         name="source"
                         value={formData.source}
                         onChange={handleChange}
-                        className="w-full border-2 border-black p-2 bg-white focus:outline-none focus:bg-gray-50"
+                        className={inputClass}
+                        placeholder="Ссылка или название источника"
                     />
-                </div>
+                </FieldBlock>
 
-                <div className="border-2 border-black p-4">
-                    <label className="block mb-2 font-medium">Секция *</label>
+                <FieldBlock label="Секция" required>
                     <select
                         name="sectionId"
                         value={formData.sectionId}
                         onChange={handleChange}
                         required
-                        className="w-full border-2 border-black p-2 bg-white focus:outline-none focus:bg-gray-50"
+                        className={inputClass}
                     >
                         <option value="">Выберите секцию</option>
                         {flatSections.map(section => (
@@ -170,59 +183,61 @@ export default function CreateArticlePage() {
                             </option>
                         ))}
                     </select>
-                    {flatSections.length > 0 && (
-                        <div className="mt-2 text-xs text-gray-500">
-                            Доступные секции: {flatSections.map(s => s.path).join(', ')}
-                        </div>
-                    )}
-                </div>
+                </FieldBlock>
 
-                <div className="border-2 border-black p-4">
-                    <label className="block mb-2 font-medium">Теги</label>
-                    <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-2 border border-gray-200">
+                <FieldBlock label="Теги">
+                    <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
                         {availableTags.map(tag => (
                             <button
                                 key={tag.id}
                                 type="button"
                                 onClick={() => handleTagToggle(tag.id)}
-                                className={`border-2 border-black px-3 py-1 transition ${
-                                    formData.tags.includes(tag.id)
-                                        ? 'bg-black text-white'
-                                        : 'hover:bg-black hover:text-white'
-                                }`}
+                                                    style={{
+                                    fontFamily: "var(--mono)",
+                                    fontSize: "0.75rem",
+                                    padding: "4px 12px",
+                                    borderRadius: "4px",
+                                    border: formData.tags.includes(tag.id) ? "1px solid var(--accent)" : "1px solid var(--border)",
+                                    background: formData.tags.includes(tag.id) ? "var(--accent)" : "white",
+                                    color: formData.tags.includes(tag.id) ? "white" : "var(--muted)",
+                                    cursor: "pointer",
+                                    transition: "all 0.15s",
+                                }}
                             >
                                 #{tag.name}
                             </button>
                         ))}
                         {availableTags.length === 0 && (
-                            <div className="text-gray-500">Нет доступных тегов</div>
+                            <div className="text-slate-400 text-sm">Нет доступных тегов</div>
                         )}
                     </div>
-                </div>
+                </FieldBlock>
 
-                <div className="border-2 border-black p-4">
-                    <label className="block mb-2 font-medium">Текст статьи (Markdown)</label>
+                <FieldBlock label="Текст статьи (Markdown)">
                     <textarea
                         name="body"
                         value={formData.body}
                         onChange={handleChange}
                         rows="20"
-                        className="w-full border-2 border-black p-2 bg-white font-mono text-sm focus:outline-none focus:bg-gray-50"
+                        className={`${inputClass} font-mono text-sm`}
+                        placeholder="# Заголовок&#10;&#10;Текст статьи..."
                     />
-                </div>
+                </FieldBlock>
 
-                <div className="flex gap-4 pt-4">
+                <div className="flex gap-3 pt-2">
                     <button
                         type="submit"
                         disabled={saving}
-                        className="border-2 border-black px-6 py-3 bg-black text-white hover:bg-white hover:text-black transition disabled:opacity-50"
+                        className="px-6 py-2.5 rounded-lg text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        style={{ fontFamily: "var(--mono)", background: "var(--accent)", color: "white", border: "none" }}
                     >
-                        {saving ? 'Создание...' : 'Создать статью'}
+                        {saving ? '$ creating...' : '$ create article'}
                     </button>
                     <button
                         type="button"
                         onClick={() => navigate('/articles')}
-                        className="border-2 border-black px-6 py-3 hover:bg-black hover:text-white transition"
+                                    className="px-6 py-2.5 rounded-lg border border-slate-300 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
+                        style={{ fontFamily: "var(--mono)" }}
                     >
                         Отмена
                     </button>

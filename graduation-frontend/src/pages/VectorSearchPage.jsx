@@ -3,6 +3,42 @@ import { getApi } from '../api/api';
 import { getKeycloak } from '../auth/keycloak';
 import ReactMarkdown from 'react-markdown';
 
+function TerminalWindow({ children, title = "bash" }) {
+    return (
+        <div style={{
+            background: "#0f172a",
+            border: "1px solid #1e293b",
+            borderRadius: "12px",
+            overflow: "hidden",
+            fontFamily: "var(--mono)",
+            fontSize: "0.875rem",
+            lineHeight: "1.6",
+        }}>
+            {/* Titlebar */}
+            <div style={{
+                background: "#1e293b",
+                padding: "10px 16px",
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                gap: "6px",
+                borderBottom: "1px solid #334155",
+            }}>
+                <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#ef4444", flexShrink: 0, display: "inline-block" }} />
+                <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#f59e0b", flexShrink: 0, display: "inline-block" }} />
+                <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#22c55e", flexShrink: 0, display: "inline-block" }} />
+                <span style={{ marginLeft: "12px", fontSize: "0.75rem", color: "#64748b" }}>
+                    {title}
+                </span>
+            </div>
+            {/* Body */}
+            <div style={{ padding: "20px 24px", color: "#94a3b8" }}>
+                {children}
+            </div>
+        </div>
+    );
+}
+
 export default function VectorSearchPage() {
     const [query, setQuery] = useState('');
     const [response, setResponse] = useState('');
@@ -13,8 +49,14 @@ export default function VectorSearchPage() {
 
     if (!keycloak?.authenticated) {
         return (
-            <div className="p-[30px] text-center text-[18px] border-2 border-black bg-white">
-                Необходимо авторизоваться для доступа к этой странице.
+            <div className="max-w-2xl mx-auto px-6 py-16">
+                <TerminalWindow title="access denied">
+                    <div className="terminal-line terminal-prompt">&gt; checking auth status...</div>
+                    <div className="terminal-line" style={{ color: "#ef4444" }}>&gt; ERROR: unauthenticated</div>
+                    <div className="terminal-line mt-2" style={{ color: "#94a3b8" }}>
+                        Необходимо авторизоваться для доступа к этой странице.
+                    </div>
+                </TerminalWindow>
             </div>
         );
     }
@@ -28,23 +70,13 @@ export default function VectorSearchPage() {
         setResponse('');
 
         try {
-            await keycloak.updateToken(30).catch(() => { /* silent */ });
-
+            await keycloak.updateToken(30).catch(() => {});
             const api = getApi();
-
-            const res = await api.post('/embedding/api/v1/rag/answer', {
-                query: query.trim(),
-            });
-
-            // Предполагаем, что ответ приходит в поле response (как в вашем примере)
+            const res = await api.post('/embedding/api/v1/rag/answer', { query: query.trim() });
             setResponse(res.data.response || res.data.answer || '');
         } catch (err) {
             console.error(err);
-            setError(
-                err.response?.data?.message ||
-                err.message ||
-                'Ошибка при выполнении векторного поиска'
-            );
+            setError(err.response?.data?.message || err.message || 'Ошибка при выполнении запроса');
         } finally {
             setLoading(false);
         }
@@ -56,96 +88,76 @@ export default function VectorSearchPage() {
                 <h1>Векторный поиск</h1>
             </div>
 
-            <form onSubmit={handleSubmit} className="mb-[30px]">
-                <textarea
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Введите ваш вопрос..."
-                    rows={5}
-                    className="
-                        w-full
-                        p-[14px]
-                        border-2 border-black
-                        bg-white
-                        text-[16px]
-                        font-medium
-                        resize-y
-                        min-h-[120px]
-                        focus:bg-[#f8f8f8]
-                        transition-colors
-                    "
-                />
+            {/* Форма */}
+            <form onSubmit={handleSubmit} className="mb-6">
+                <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    {/* Полоска-хедер формы */}
+                    <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-100 bg-slate-50">
+                        <span className="text-xs" style={{ fontFamily: "var(--mono)", color: "var(--muted)" }}>
+                            &gt; enter query
+                        </span>
+                        <span className="cursor-blink" style={{ display: "inline-block" }} />
+                    </div>
+                    <textarea
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        placeholder="Что хотите найти?"
+                        rows={5}
+                        className="w-full px-4 py-3 text-sm bg-white text-slate-900 resize-y min-h-[120px] focus:outline-none"
+                        style={{ fontFamily: "var(--mono)", borderBottom: "none" }}
+                    />
+                </div>
                 <button
                     type="submit"
                     disabled={loading}
-                    className="
-                        mt-4
-                        px-8 py-3
-                        border-2 border-black
-                        bg-black text-white
-                        font-medium
-                        text-[15px]
-                        hover:bg-[#222]
-                        active:bg-[#000]
-                        disabled:bg-[#888]
-                        disabled:text-[#ccc]
-                        disabled:cursor-not-allowed
-                        transition-colors
-                    "
+                    className="mt-3 px-6 py-2.5 rounded-lg text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{
+                        fontFamily: "var(--mono)",
+                        background: "var(--accent)",
+                        color: "white",
+                        border: "none",
+                    }}
+                    onMouseEnter={e => { if (!loading) e.currentTarget.style.background = "var(--accent-hover)"; }}
+                    onMouseLeave={e => { if (!loading) e.currentTarget.style.background = "var(--accent)"; }}
                 >
-                    {loading ? 'ОБРАБОТКА...' : 'ЗАДАТЬ ВОПРОС'}
+                    {loading ? '$ executing...' : '$ run query'}
                 </button>
             </form>
 
+            {/* Загрузка */}
             {loading && (
-                <div className="
-                    py-16 px-8
-                    font-mono text-[15px] leading-6
-                    text-black bg-white
-                    border-2 border-black
-                    max-w-2xl mx-auto
-                    flex flex-col items-start
-                ">
-                    <div className="mb-3 opacity-70">{"> INITIALIZING VECTOR QUERY ENGINE..."}</div>
-                    <div className="mb-1 opacity-70">{"> TOKEN VALIDATED"}</div>
-                    <div className="mb-4 text-black font-medium flex items-center">
-                        {"> SENDING QUERY"}
-                        <span className="loading-dots ml-1">
-                            <span>.</span><span>.</span><span>.</span>
-                        </span>
+                <TerminalWindow title="rag-engine — running">
+                    <div style={{ marginBottom: "6px", color: "var(--nav-accent)" }}>&gt; INIT VECTOR QUERY ENGINE</div>
+                    <div style={{ marginBottom: "6px", color: "var(--nav-accent)" }}>&gt; TOKEN OK</div>
+                    <div style={{ marginTop: "4px", color: "#e2e8f0", display: "flex", alignItems: "center", gap: "4px" }}>
+                        <span>&gt; SEARCHING</span>
+                        <span className="loading-dots"><span>.</span><span>.</span><span>.</span></span>
                     </div>
-                </div>
+                </TerminalWindow>
             )}
 
+            {/* Ошибка */}
             {error && (
-                <div className="
-                    p-[18px]
-                    border-2 border-black
-                    bg-white
-                    text-[#c00]
-                    font-medium
-                ">
-                    Ошибка: {error}
-                </div>
+                <TerminalWindow title="stderr">
+                    <div style={{ color: "#ef4444" }}>
+                        ERR: {error}
+                    </div>
+                </TerminalWindow>
             )}
 
+            {/* Ответ */}
             {response && (
-                <div className="
-                    border-2 border-black
-                    bg-white
-                    p-[24px]
-                    prose
-                    prose-lg
-                    max-w-none
-                    [&_*]:!text-black
-                    [&_a]:underline
-                    [&_pre]:bg-[#f8f8f8]
-                    [&_pre]:p-4
-                    [&_pre]:border-2
-                    [&_pre]:border-black
-                    [&_code]:bg-[#f0f0f0]
-                ">
-                    <ReactMarkdown>{response}</ReactMarkdown>
+                <div>
+                    {/* Заголовок ответа */}
+                    <div className="flex items-center gap-2 mb-3 text-xs"
+                        style={{ fontFamily: "var(--mono)", color: "var(--muted)" }}>
+                        <span style={{ color: "var(--accent)" }}>&gt;</span>
+                        <span>response received</span>
+                    </div>
+                    <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm prose prose-slate prose-base max-w-none"
+                        style={{ borderLeft: "3px solid var(--accent)" }}>
+                        <ReactMarkdown>{response}</ReactMarkdown>
+                    </div>
                 </div>
             )}
         </div>
