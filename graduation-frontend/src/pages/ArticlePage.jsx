@@ -142,21 +142,6 @@ export default function ArticlePage() {
                 </div>
             )}
 
-            {/* Изображение */}
-            {article.mainPicture && (
-                <div className="mb-8 rounded-xl overflow-hidden border border-slate-200">
-                    <img
-                        src={article.mainPicture}
-                        alt={article.title}
-                        className="w-full h-auto object-cover"
-                        onError={(e) => {
-                            e.target.style.display = 'none';
-                            e.target.parentElement.style.display = 'none';
-                        }}
-                    />
-                </div>
-            )}
-
             {/* Описание */}
             {article.description && (
                 <div className="mb-6 p-4 rounded-xl border-l-4 bg-slate-50 border border-slate-200 text-slate-600 italic text-sm leading-relaxed"
