@@ -9,7 +9,6 @@ const baseMenuItems = [
 
 const authMenuItems = [
     { label: "vector-search",  path: "/vector-search"  },
-    { label: "visualization",  path: "/visualization"  },
 ];
 
 export default function Navigation() {
