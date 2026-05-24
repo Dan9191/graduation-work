@@ -19,9 +19,11 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import org.slf4j.MDC
 import reactor.core.publisher.Mono
 import ru.dan.article.model.article.ArticleViewDto
 import ru.dan.article.model.article.CreateArticleDto
+import ru.dan.article.model.article.CreateArticleResponseDto
 import ru.dan.article.model.article.PagedShortArticles
 import ru.dan.article.model.article.UpdateArticleRequestDto
 import ru.dan.article.service.ArticleService
@@ -55,17 +57,25 @@ class ArticleController(
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete article by ID")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     fun delete(
         @PathVariable id: UUID,
-    ): Mono<Void> = articleService.deleteArticle(id)
+    ): Mono<Map<String, String>> =
+        articleService.deleteArticle(id)
+            .thenReturn(mapOf("operationId" to (MDC.get("operationId") ?: "")))
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create article")
     fun createSection(
         @RequestBody request: CreateArticleDto,
-    ): Mono<ArticleViewDto> = articleService.createArticle(request)
+    ): Mono<CreateArticleResponseDto> =
+        articleService.createArticle(request)
+            .map { article ->
+                CreateArticleResponseDto(
+                    article = article,
+                    operationId = MDC.get("operationId") ?: "",
+                )
+            }
 
     @PutMapping("/{id}")
     @Operation(summary = "Обновление статьи")
@@ -86,11 +96,17 @@ class ArticleController(
     fun update(
         @PathVariable id: UUID,
         @RequestBody request: UpdateArticleRequestDto,
-    ): Mono<ResponseEntity<ArticleViewDto>> =
+    ): Mono<ResponseEntity<CreateArticleResponseDto>> =
         articleService
             .updateArticle(id, request)
-            .map { ResponseEntity.ok(it) }
-            .defaultIfEmpty(ResponseEntity.notFound().build())
+            .map { article ->
+                ResponseEntity.ok(
+                    CreateArticleResponseDto(
+                        article = article,
+                        operationId = MDC.get("operationId") ?: "",
+                    ),
+                )
+            }.defaultIfEmpty(ResponseEntity.notFound().build())
 
     @GetMapping("/all")
     @Operation(summary = "Страница статей")
