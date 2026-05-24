@@ -7,6 +7,7 @@ import dev.langchain4j.data.document.Document
 import dev.langchain4j.data.document.splitter.DocumentSplitters
 import dev.langchain4j.data.segment.TextSegment
 import mu.KotlinLogging
+import org.slf4j.MDC
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import ru.dan.rag.config.RagPropertiesConfig
@@ -36,17 +37,27 @@ class ArticleProcessingService(
         val article = createOrGetArticle(articleMessage)
         val preparedText: String = markdownToPlainText(articleMessage.body)
 
-        val splitter =
-            DocumentSplitters.recursive(
-                ragPropertiesConfig.maxSegmentSizeInChars,
-                ragPropertiesConfig.maxOverlapSizeInChars,
-            )
+        val prevStep = MDC.get("stepName")
+        MDC.put("stepName", "ChunkArticle")
+        try {
+            logger.info { "Splitting article text: articleId=${article.id}, chars=${preparedText.length}" }
 
-        val document = Document.from(preparedText)
-        val segments = splitter.split(document)
+            val splitter =
+                DocumentSplitters.recursive(
+                    ragPropertiesConfig.maxSegmentSizeInChars,
+                    ragPropertiesConfig.maxOverlapSizeInChars,
+                )
 
-        val chunks = createArticleChunksFromTextSegments(segments, article)
-        chunkRepository.batchInsert(chunks)
+            val document = Document.from(preparedText)
+            val segments = splitter.split(document)
+
+            val chunks = createArticleChunksFromTextSegments(segments, article)
+            chunkRepository.batchInsert(chunks)
+
+            logger.info { "Article split into ${chunks.size} chunks, saved for embedding: articleId=${article.id}" }
+        } finally {
+            if (prevStep != null) MDC.put("stepName", prevStep) else MDC.remove("stepName")
+        }
 
         return article.id
     }

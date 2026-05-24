@@ -62,8 +62,10 @@ class ChunkEmbeddingService(
      */
     private fun processSingleChunk(chunk: ChunkForProcessing) {
         try {
+            logger.info { "Requesting embedding for chunk id=${chunk.id}, textLength=${chunk.text.length}" }
             val embedding = fetchEmbedding(chunk.text)
             articleChunkRepository.updateWithEmbedding(chunk.id, embedding)
+            logger.info { "Embedding saved for chunk id=${chunk.id}, dims=${embedding.size}" }
         } catch (e: Exception) {
             logger.error(e) { "Failed to process chunk id=${chunk.id}" }
         }

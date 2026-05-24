@@ -37,7 +37,9 @@ class StepRegistrar(
                 Step("RagAnswer", "GenerateLlmResponse", "rag-service"),
                 Step("RagSearch", "RagSearch", "rag-service"),
                 Step("CreateArticle", "ProcessArticleCreation", "rag-service"),
+                Step("CreateArticle", "ChunkArticle", "rag-service"),
                 Step("UpdateArticle", "ProcessArticleUpdate", "rag-service"),
+                Step("UpdateArticle", "ChunkArticle", "rag-service"),
                 Step("DeleteArticle", "ProcessArticleDeletion", "rag-service"),
                 Step("ProcessEmbedding", "GenerateEmbedding", "rag-service"),
             )
