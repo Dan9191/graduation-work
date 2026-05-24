@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.slf4j.MDC
 import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
-import org.slf4j.MDC
 import reactor.core.publisher.Mono
 import ru.dan.article.model.article.ArticleViewDto
 import ru.dan.article.model.article.CreateArticleDto
@@ -60,7 +60,8 @@ class ArticleController(
     fun delete(
         @PathVariable id: UUID,
     ): Mono<Map<String, String>> =
-        articleService.deleteArticle(id)
+        articleService
+            .deleteArticle(id)
             .thenReturn(mapOf("operationId" to (MDC.get("operationId") ?: "")))
 
     @PostMapping
@@ -69,7 +70,8 @@ class ArticleController(
     fun createSection(
         @RequestBody request: CreateArticleDto,
     ): Mono<CreateArticleResponseDto> =
-        articleService.createArticle(request)
+        articleService
+            .createArticle(request)
             .map { article ->
                 CreateArticleResponseDto(
                     article = article,
