@@ -25,6 +25,8 @@ class MdcWebFilter : WebFilter {
         MDC.put("serviceName", SERVICE_NAME)
         exchange.attributes[OPERATION_ID_ATTR] = operationId
 
+        val mdcSnapshot = MDC.getCopyOfContextMap() ?: emptyMap()
+
         return chain
             .filter(exchange)
             .doFinally {
@@ -33,6 +35,7 @@ class MdcWebFilter : WebFilter {
                 MDC.remove("stepName")
                 MDC.remove("serviceName")
             }
+            .contextWrite { ctx -> ctx.put("slf4j.mdc", mdcSnapshot) }
     }
 
     private fun resolveOperation(request: ServerHttpRequest): Pair<String, String> {
