@@ -11,7 +11,6 @@ import java.util.UUID
 
 @Component
 class MdcWebFilter : WebFilter {
-
     override fun filter(
         exchange: ServerWebExchange,
         chain: WebFilterChain,
@@ -20,14 +19,14 @@ class MdcWebFilter : WebFilter {
         val operationId = request.headers.getFirst("X-Operation-Id") ?: UUID.randomUUID().toString()
         val (txName, stepName) = resolveOperation(request)
 
-        return chain.filter(exchange)
+        return chain
+            .filter(exchange)
             .doFirst {
                 MDC.put("operationId", operationId)
                 MDC.put("transactionName", txName)
                 MDC.put("stepName", stepName)
                 MDC.put("serviceName", SERVICE_NAME)
-            }
-            .doFinally {
+            }.doFinally {
                 MDC.remove("operationId")
                 MDC.remove("transactionName")
                 MDC.remove("stepName")
