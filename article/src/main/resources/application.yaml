@@ -23,6 +23,9 @@ spring:
   reactor:
     context-propagation: auto
 
+observer:
+  service-url: ${OBSERVER_SERVICE_URL:http://localhost:8033}
+
 app:
   article:
     flyway:
