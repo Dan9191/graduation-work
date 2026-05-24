@@ -44,6 +44,7 @@ dependencies {
     implementation("org.postgresql:postgresql")
     implementation("org.postgresql:r2dbc-postgresql")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    implementation("io.micrometer:context-propagation")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
