@@ -85,7 +85,7 @@ export default function CreateArticlePage() {
         try {
             const api = getApi();
             const response = await api.post('/knowledge/api/v1/articles', formData);
-            navigate(`/articles/${response.data.id}`);
+            navigate(`/articles/${response.data.article.id}`);
         } catch (err) {
             alert('Не удалось создать статью');
             console.error(err);
