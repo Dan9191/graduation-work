@@ -39,17 +39,17 @@ class MdcWebFilter : WebFilter {
         val method = request.method.name()
         val path = request.path.value()
         return when {
-            method == "POST"   && path.contains("/articles") -> "CreateArticle" to "CreateArticle"
-            method == "PUT"    && path.contains("/articles") -> "UpdateArticle" to "UpdateArticle"
+            method == "POST" && path.contains("/articles") -> "CreateArticle" to "CreateArticle"
+            method == "PUT" && path.contains("/articles") -> "UpdateArticle" to "UpdateArticle"
             method == "DELETE" && path.contains("/articles") -> "DeleteArticle" to "DeleteArticle"
-            method == "GET"    && path.contains("/articles") -> "ReadArticle"   to "ReadArticle"
-            method == "POST"   && path.contains("/sections") -> "CreateSection" to "CreateSection"
-            method == "PUT"    && path.contains("/sections") -> "UpdateSection" to "UpdateSection"
+            method == "GET" && path.contains("/articles") -> "ReadArticle" to "ReadArticle"
+            method == "POST" && path.contains("/sections") -> "CreateSection" to "CreateSection"
+            method == "PUT" && path.contains("/sections") -> "UpdateSection" to "UpdateSection"
             method == "DELETE" && path.contains("/sections") -> "DeleteSection" to "DeleteSection"
-            method == "GET"    && path.contains("/sections") -> "ReadSection"   to "ReadSection"
-            method == "POST"   && path.contains("/tags")     -> "CreateTag"     to "CreateTag"
-            method == "DELETE" && path.contains("/tags")     -> "DeleteTag"     to "DeleteTag"
-            method == "GET"    && path.contains("/tags")     -> "ReadTag"       to "ReadTag"
+            method == "GET" && path.contains("/sections") -> "ReadSection" to "ReadSection"
+            method == "POST" && path.contains("/tags") -> "CreateTag" to "CreateTag"
+            method == "DELETE" && path.contains("/tags") -> "DeleteTag" to "DeleteTag"
+            method == "GET" && path.contains("/tags") -> "ReadTag" to "ReadTag"
             else -> "ArticleOperation" to "ArticleOperation"
         }
     }

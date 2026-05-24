@@ -45,8 +45,9 @@ class LlmService(
                 ),
             )
 
-        val result = gigachatModelsClient.generateText(messages)
-            ?: "Ошибка генерации ответа"
+        val result =
+            gigachatModelsClient.generateText(messages)
+                ?: "Ошибка генерации ответа"
         logger.info { "LLM response generated, took ${System.currentTimeMillis() - startTime}ms" }
         return result
     }

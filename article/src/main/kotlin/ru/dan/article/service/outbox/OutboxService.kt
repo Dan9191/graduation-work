@@ -42,25 +42,24 @@ class OutboxService(
      */
     private fun processRecord(record: ArticleOutbox): Mono<Void> {
         val operationId = record.operationId?.toString() ?: UUID.randomUUID().toString()
-        val txName = when (record.eventType) {
-            "CREATED" -> "CreateArticle"
-            "UPDATED" -> "UpdateArticle"
-            "DELETED" -> "DeleteArticle"
-            else -> "ArticleEvent"
-        }
+        val txName =
+            when (record.eventType) {
+                "CREATED" -> "CreateArticle"
+                "UPDATED" -> "UpdateArticle"
+                "DELETED" -> "DeleteArticle"
+                else -> "ArticleEvent"
+            }
 
         return sendToRabbit(record)
             .flatMap { success ->
                 if (success) handleSuccess(record) else handleFailure(record)
-            }
-            .onErrorResume { handleFailure(record) }
+            }.onErrorResume { handleFailure(record) }
             .doFirst {
                 MDC.put("operationId", operationId)
                 MDC.put("transactionName", txName)
                 MDC.put("stepName", "PublishEvent")
                 MDC.put("serviceName", MdcWebFilter.SERVICE_NAME)
-            }
-            .doFinally {
+            }.doFinally {
                 MDC.remove("operationId")
                 MDC.remove("transactionName")
                 MDC.remove("stepName")
