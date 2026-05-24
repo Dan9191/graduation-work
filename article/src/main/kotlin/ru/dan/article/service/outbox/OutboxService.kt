@@ -50,16 +50,16 @@ class OutboxService(
                 else -> "ArticleEvent"
             }
 
+        MDC.put("operationId", operationId)
+        MDC.put("transactionName", txName)
+        MDC.put("stepName", "PublishEvent")
+        MDC.put("serviceName", MdcWebFilter.SERVICE_NAME)
+
         return sendToRabbit(record)
             .flatMap { success ->
                 if (success) handleSuccess(record) else handleFailure(record)
             }.onErrorResume { handleFailure(record) }
-            .doFirst {
-                MDC.put("operationId", operationId)
-                MDC.put("transactionName", txName)
-                MDC.put("stepName", "PublishEvent")
-                MDC.put("serviceName", MdcWebFilter.SERVICE_NAME)
-            }.doFinally {
+            .doFinally {
                 MDC.remove("operationId")
                 MDC.remove("transactionName")
                 MDC.remove("stepName")

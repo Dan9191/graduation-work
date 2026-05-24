@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.slf4j.MDC
 import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -20,7 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
+import ru.dan.article.filter.MdcWebFilter
 import ru.dan.article.model.article.ArticleViewDto
 import ru.dan.article.model.article.CreateArticleDto
 import ru.dan.article.model.article.CreateArticleResponseDto
@@ -59,23 +60,25 @@ class ArticleController(
     @Operation(summary = "Delete article by ID")
     fun delete(
         @PathVariable id: UUID,
+        exchange: ServerWebExchange,
     ): Mono<Map<String, String>> =
         articleService
             .deleteArticle(id)
-            .thenReturn(mapOf("operationId" to (MDC.get("operationId") ?: "")))
+            .thenReturn(mapOf("operationId" to (exchange.getAttribute<String>(MdcWebFilter.OPERATION_ID_ATTR) ?: "")))
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create article")
     fun createSection(
         @RequestBody request: CreateArticleDto,
+        exchange: ServerWebExchange,
     ): Mono<CreateArticleResponseDto> =
         articleService
             .createArticle(request)
             .map { article ->
                 CreateArticleResponseDto(
                     article = article,
-                    operationId = MDC.get("operationId") ?: "",
+                    operationId = exchange.getAttribute<String>(MdcWebFilter.OPERATION_ID_ATTR) ?: "",
                 )
             }
 
@@ -98,6 +101,7 @@ class ArticleController(
     fun update(
         @PathVariable id: UUID,
         @RequestBody request: UpdateArticleRequestDto,
+        exchange: ServerWebExchange,
     ): Mono<ResponseEntity<CreateArticleResponseDto>> =
         articleService
             .updateArticle(id, request)
@@ -105,7 +109,7 @@ class ArticleController(
                 ResponseEntity.ok(
                     CreateArticleResponseDto(
                         article = article,
-                        operationId = MDC.get("operationId") ?: "",
+                        operationId = exchange.getAttribute<String>(MdcWebFilter.OPERATION_ID_ATTR) ?: "",
                     ),
                 )
             }.defaultIfEmpty(ResponseEntity.notFound().build())

@@ -19,14 +19,15 @@ class MdcWebFilter : WebFilter {
         val operationId = request.headers.getFirst("X-Operation-Id") ?: UUID.randomUUID().toString()
         val (txName, stepName) = resolveOperation(request)
 
+        MDC.put("operationId", operationId)
+        MDC.put("transactionName", txName)
+        MDC.put("stepName", stepName)
+        MDC.put("serviceName", SERVICE_NAME)
+        exchange.attributes[OPERATION_ID_ATTR] = operationId
+
         return chain
             .filter(exchange)
-            .doFirst {
-                MDC.put("operationId", operationId)
-                MDC.put("transactionName", txName)
-                MDC.put("stepName", stepName)
-                MDC.put("serviceName", SERVICE_NAME)
-            }.doFinally {
+            .doFinally {
                 MDC.remove("operationId")
                 MDC.remove("transactionName")
                 MDC.remove("stepName")
@@ -55,5 +56,6 @@ class MdcWebFilter : WebFilter {
 
     companion object {
         const val SERVICE_NAME = "article-service"
+        const val OPERATION_ID_ATTR = "operationId"
     }
 }
