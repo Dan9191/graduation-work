@@ -1,5 +1,6 @@
 package ru.dan.rag.controller
 
+import org.slf4j.MDC
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -28,6 +29,9 @@ class RequestController(
     fun chat(
         @RequestBody request: SearchRequest,
     ): Map<String, String> {
+        val operationId = MDC.get("operationId") ?: ""
+
+        MDC.put("stepName", "SearchChunks")
         val searchResponse = searchService.search(request)
 
         val context =
@@ -40,8 +44,9 @@ class RequestController(
                         if (result.similarity != null) append(" (score: %.3f)".format(result.similarity))
                     }
                 }
+        MDC.put("stepName", "GenerateLlmResponse")
         val response = llmService.generateResponse(request.query, context)
-        return mapOf("response" to response)
+        return mapOf("response" to response, "operationId" to operationId)
     }
 
     @PostMapping("/search")

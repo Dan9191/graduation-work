@@ -38,6 +38,7 @@ dependencies {
     implementation("org.apache.httpcomponents.client5:httpclient5:5.6")
     implementation("com.fasterxml.uuid:java-uuid-generator:4.1.1")
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
+    implementation("net.logstash.logback:logstash-logback-encoder:8.0")
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.21.0")

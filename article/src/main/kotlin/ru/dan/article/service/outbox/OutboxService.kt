@@ -2,14 +2,17 @@ package ru.dan.article.service.outbox
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import mu.KotlinLogging
+import org.slf4j.MDC
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
 import ru.dan.article.config.ArticleProperties
 import ru.dan.article.entity.ArticleOutbox
+import ru.dan.article.filter.MdcWebFilter
 import ru.dan.article.model.ArticleOutboxMessage
 import ru.dan.article.repository.ArticleOutboxRepository
+import java.util.UUID
 
 private val logger = KotlinLogging.logger {}
 
@@ -35,17 +38,35 @@ class OutboxService(
             .then()
 
     /**
-     * Обработка одной записи.
+     * Обработка одной записи. Устанавливает MDC на время выполнения реактивной цепочки.
      */
-    private fun processRecord(record: ArticleOutbox): Mono<Void> =
-        sendToRabbit(record)
+    private fun processRecord(record: ArticleOutbox): Mono<Void> {
+        val operationId = record.operationId?.toString() ?: UUID.randomUUID().toString()
+        val txName = when (record.eventType) {
+            "CREATED" -> "CreateArticle"
+            "UPDATED" -> "UpdateArticle"
+            "DELETED" -> "DeleteArticle"
+            else -> "ArticleEvent"
+        }
+
+        return sendToRabbit(record)
             .flatMap { success ->
-                if (success) {
-                    handleSuccess(record)
-                } else {
-                    handleFailure(record)
-                }
-            }.onErrorResume { handleFailure(record) }
+                if (success) handleSuccess(record) else handleFailure(record)
+            }
+            .onErrorResume { handleFailure(record) }
+            .doFirst {
+                MDC.put("operationId", operationId)
+                MDC.put("transactionName", txName)
+                MDC.put("stepName", "PublishEvent")
+                MDC.put("serviceName", MdcWebFilter.SERVICE_NAME)
+            }
+            .doFinally {
+                MDC.remove("operationId")
+                MDC.remove("transactionName")
+                MDC.remove("stepName")
+                MDC.remove("serviceName")
+            }
+    }
 
     /**
      * Отправка в RabbitMQ (блокирующий вызов выполняется в отдельном потоке).

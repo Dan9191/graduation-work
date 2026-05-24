@@ -1,6 +1,6 @@
 package ru.dan.rag.service
 
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
 import ru.dan.rag.config.RagPropertiesConfig
@@ -8,20 +8,22 @@ import ru.dan.rag.model.answer.SearchRequest
 import ru.dan.rag.model.answer.SearchResponse
 import ru.dan.rag.model.answer.SearchResult
 
+private val logger = KotlinLogging.logger {}
+
 @Service
 class SearchService(
     private val jdbcTemplate: JdbcTemplate,
     private val chunkEmbeddingService: ChunkEmbeddingService,
     private val ragPropertiesConfig: RagPropertiesConfig,
 ) {
-    private val log = LoggerFactory.getLogger(SearchService::class.java)
-
     fun search(request: SearchRequest): SearchResponse {
-        log.info("Search query: ${request.query}")
+        val startTime = System.currentTimeMillis()
+        logger.info { "Search query: ${request.query}" }
         val queryEmbedding = chunkEmbeddingService.fetchEmbedding(request.query)
 
         val results = findSimilarChunks(queryEmbedding, limit = 5, minSimilarity = ragPropertiesConfig.minSimilarity)
 
+        logger.info { "Search completed: found ${results.size} results, took ${System.currentTimeMillis() - startTime}ms" }
         return SearchResponse(results = results)
     }
 

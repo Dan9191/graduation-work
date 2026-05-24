@@ -5,6 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.runApplication
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.transaction.annotation.EnableTransactionManagement
+import reactor.core.publisher.Hooks
 
 @SpringBootApplication
 @EnableScheduling
@@ -13,5 +14,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement
 class ArticleApplication
 
 fun main(args: Array<String>) {
+    Hooks.enableAutomaticContextPropagation()
     runApplication<ArticleApplication>(*args)
 }

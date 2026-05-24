@@ -1,6 +1,7 @@
 package ru.dan.article.service
 
 import mu.KotlinLogging
+import org.slf4j.MDC
 import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -87,6 +88,8 @@ class ArticleService(
             .findById(id)
             .switchIfEmpty(Mono.error(ResponseStatusException(HttpStatus.NOT_FOUND, "Article not found")))
             .flatMap { article ->
+                val operationId = currentOperationId()
+                logger.info("Deleting article: id={}", id)
                 val outbox =
                     ArticleOutbox(
                         id = uuidGenerator.generateUUID(),
@@ -98,9 +101,12 @@ class ArticleService(
                         status = "PENDING",
                         attemptCount = 0,
                         createdAt = Instant.now(),
+                        operationId = operationId,
                     )
                 outboxRepository.insert(outbox)
             }.then(articleRepository.deleteById(id))
+            .doOnSuccess { logger.info("Article deleted: id={}", id) }
+            .doOnError { e -> logger.warn("Failed to delete article: id={}, error={}", id, e.message) }
 
     @Transactional
     fun createArticle(dto: CreateArticleDto): Mono<ArticleViewDto> {
@@ -120,7 +126,9 @@ class ArticleService(
 
         return articleRepository
             .insert(article)
+            .doOnSubscribe { logger.info("Creating article: title={}", dto.title) }
             .flatMap { saved ->
+                val operationId = currentOperationId()
                 val outbox =
                     ArticleOutbox(
                         id = uuidGenerator.generateUUID(),
@@ -132,6 +140,7 @@ class ArticleService(
                         status = "PENDING",
                         attemptCount = 0,
                         createdAt = Instant.now(),
+                        operationId = operationId,
                     )
 
                 outboxRepository
@@ -187,7 +196,7 @@ class ArticleService(
                             tags = tags.map { TagDto(it.id!!, it.name) },
                         )
                     }
-            }.doOnSuccess { a -> logger.debug("Article created successfully: id={}", a!!.id) }
+            }.doOnSuccess { a -> logger.info("Article created: id={}", a!!.id) }
             .doOnError { e -> logger.warn("Failed to create article: {}", e.message) }
     }
 
@@ -199,7 +208,9 @@ class ArticleService(
         articleRepository
             .findById(id)
             .switchIfEmpty(Mono.error(ResponseStatusException(HttpStatus.NOT_FOUND, "Article not found")))
+            .doOnSubscribe { logger.info("Updating article: id={}", id) }
             .flatMap { existing ->
+                val operationId = currentOperationId()
                 val outbox =
                     ArticleOutbox(
                         id = uuidGenerator.generateUUID(),
@@ -211,6 +222,7 @@ class ArticleService(
                         status = "PENDING",
                         attemptCount = 0,
                         createdAt = Instant.now(),
+                        operationId = operationId,
                     )
 
                 outboxRepository
@@ -289,7 +301,7 @@ class ArticleService(
                             tags = tags,
                         )
                     }
-            }.doOnSuccess { a -> logger.debug("Article updated successfully: id={}", a!!.id) }
+            }.doOnSuccess { a -> logger.info("Article updated: id={}", a!!.id) }
             .doOnError { e -> logger.warn("Failed to update article id={}: {}", id, e.message) }
 
     @Transactional(readOnly = true)
@@ -349,4 +361,8 @@ class ArticleService(
                 )
             }
     }
+
+    private fun currentOperationId(): UUID =
+        MDC.get("operationId")?.runCatching { UUID.fromString(this) }?.getOrNull()
+            ?: UUID.randomUUID()
 }

@@ -15,4 +15,5 @@ data class ArticleMessage(
     val eventType: String,
     val body: String,
     val source: String?,
+    val operationId: UUID? = null,
 )

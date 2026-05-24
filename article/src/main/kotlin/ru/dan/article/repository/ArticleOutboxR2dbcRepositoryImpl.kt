@@ -18,18 +18,11 @@ class ArticleOutboxR2dbcRepositoryImpl(
             .sql(
                 """
                 INSERT INTO article_outbox (
-                    id,
-                    article_id,
-                    article_name,
-                    event_type,
-                    status, 
-                    body,
-                    source,
-                    attempt_count,
-                    created_at
+                    id, article_id, article_name, event_type,
+                    status, body, source, attempt_count, created_at, operation_id
                 ) VALUES (
-                    :id, :articleId, :articleName, :eventType, :status,
-                    :body, :source, :attemptCount, :createdAt
+                    :id, :articleId, :articleName, :eventType,
+                    :status, :body, :source, :attemptCount, :createdAt, :operationId
                 )
                 """.trimIndent(),
             ).bindValues(
@@ -43,6 +36,7 @@ class ArticleOutboxR2dbcRepositoryImpl(
                     "source" to article.source,
                     "attemptCount" to article.attemptCount,
                     "createdAt" to article.createdAt,
+                    "operationId" to article.operationId,
                 ),
             ).fetch()
             .rowsUpdated()
@@ -55,8 +49,8 @@ class ArticleOutboxR2dbcRepositoryImpl(
         databaseClient
             .sql(
                 """
-                SELECT id, article_id, article_name, event_type, status, body, 
-                       source, attempt_count, created_at, updated_at
+                SELECT id, article_id, article_name, event_type, status, body,
+                       source, attempt_count, created_at, updated_at, operation_id
                 FROM article_outbox
                 WHERE status = 'PENDING' AND attempt_count < :maxAttempts
                 ORDER BY created_at
@@ -73,9 +67,10 @@ class ArticleOutboxR2dbcRepositoryImpl(
                     eventType = row.get("event_type", String::class.java)!!,
                     status = row.get("status", String::class.java)!!,
                     body = row.get("body", String::class.java)!!,
-                    source = row.get("source", String::class.java)!!,
+                    source = row.get("source", String::class.java),
                     attemptCount = row.get("attempt_count", Int::class.java)!!,
                     createdAt = row.get("created_at", Instant::class.java)!!,
+                    operationId = row.get("operation_id", UUID::class.java),
                 )
             }.all()
 

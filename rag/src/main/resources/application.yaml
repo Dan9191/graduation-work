@@ -54,3 +54,7 @@ management:
   metrics:
     tags:
       application: "graduation-rag-service"
+
+logging:
+  level:
+    root: INFO

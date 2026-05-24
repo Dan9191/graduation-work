@@ -21,13 +21,9 @@ data class ArticleOutbox(
     val eventType: String,
     val source: String?,
     val body: String,
-    /**
-     * Событие для отправки: "CREATED" / "UPDATED"
-     */
     val status: String = "PENDING",
-    /**
-     * Отправляемое сообщение ArticleMessage в виде Json
-     */
     val attemptCount: Int = 0,
     val createdAt: Instant = Instant.now(),
+    @Column("operation_id")
+    val operationId: UUID? = null,
 )

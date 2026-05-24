@@ -16,6 +16,7 @@ data class ArticleOutboxMessage(
     val eventType: String,
     val body: String,
     val source: String?,
+    val operationId: UUID? = null,
 ) {
     companion object {
         fun from(articleOutbox: ArticleOutbox): ArticleOutboxMessage =
@@ -26,6 +27,7 @@ data class ArticleOutboxMessage(
                 eventType = articleOutbox.eventType,
                 body = articleOutbox.body,
                 source = articleOutbox.source,
+                operationId = articleOutbox.operationId,
             )
     }
 }

@@ -20,6 +20,8 @@ spring:
     password: ${RABBITMQ_PASSWORD:guest}
     virtual-host: ${RABBITMQ_VIRTUAL_HOST:/}
     connection-timeout: ${RABBITMQ_CON_TIMEOUT:5000}
+  reactor:
+    context-propagation: auto
 
 app:
   article:
@@ -57,8 +59,6 @@ management:
       application: "graduation-article-service"
 
 logging:
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger - %msg%n"
   level:
     root: INFO
 
