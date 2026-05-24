@@ -1,14 +1,19 @@
 package ru.dan.article.config
 
+import io.micrometer.context.ContextRegistry
 import io.micrometer.context.ThreadLocalAccessor
+import jakarta.annotation.PostConstruct
 import org.slf4j.MDC
-import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import reactor.core.publisher.Hooks
 
 @Configuration
 class MdcContextConfig {
-    @Bean
-    fun mdcThreadLocalAccessor(): ThreadLocalAccessor<Map<String, String>> = MdcThreadLocalAccessor()
+    @PostConstruct
+    fun registerMdcAccessor() {
+        Hooks.enableAutomaticContextPropagation()
+        ContextRegistry.getInstance().registerThreadLocalAccessor(MdcThreadLocalAccessor())
+    }
 }
 
 class MdcThreadLocalAccessor : ThreadLocalAccessor<Map<String, String>> {
